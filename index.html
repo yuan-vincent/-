@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>袁鹏A1组 业绩中心</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --panel: #1a2138;
+      --panel2: #111827;
+      --line: rgba(148, 163, 184, .16);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --gold: #d4af37;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --orange: #f97316;
+      --rose: #f43f5e;
+      --silver: #cbd5e1;
+      --bronze: #b7793b;
+      --radius: 8px;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .36);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 6%, rgba(212, 175, 55, .18), transparent 28rem),
+        radial-gradient(circle at 88% 92%, rgba(59, 130, 246, .18), transparent 32rem),
+        var(--bg);
+      overflow-x: hidden;
+    }
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      content: "";
+      background-image:
+        linear-gradient(rgba(148, 163, 184, .07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, .07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: .4;
+      animation: gridMove 28s linear infinite;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app { width: min(1680px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 42px; }
+    .header { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 20px; }
+    .eyebrow { margin: 0 0 6px; color: var(--gold); font-size: 13px; font-weight: 800; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { font-family: "Noto Serif SC", serif; font-size: clamp(32px, 4vw, 58px); line-height: 1.05; }
+    h2 { font-family: "Noto Serif SC", serif; font-size: 24px; }
+    .meta { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(26, 33, 56, .78);
+      color: var(--muted);
+      white-space: nowrap;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+    }
+    .pill strong { color: var(--text); font-family: "JetBrains Mono", monospace; font-size: 14px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rose); animation: livePulse 1.6s ease-out infinite; }
+    .dot.online { background: var(--green); }
+    .dot.syncing { background: var(--gold); }
+    .fade { opacity: 0; transform: translateY(16px); animation: fadeInUp .72s ease forwards; animation-delay: var(--delay, 0s); }
+    .panel, .stat, .toolbar {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(26, 33, 56, .95), rgba(17, 24, 39, .92));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .stat { min-height: 150px; padding: 18px; overflow: hidden; }
+    .stat-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; color: var(--muted); font-size: 13px; font-weight: 800; }
+    .stat-value { margin: 0; font-family: "DM Serif Display", serif; font-size: clamp(28px, 3vw, 46px); line-height: 1; }
+    .stat-sub { margin-top: 12px; color: var(--muted); font-size: 12px; }
+    .money { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+    .green { color: #86efac; }
+    .red { color: #fda4af; }
+    .gold { color: var(--gold); }
+    .blue { color: #93c5fd; }
+    .orange { color: #fdba74; }
+    .progress { position: relative; height: 8px; margin-top: 13px; overflow: hidden; border-radius: 999px; background: rgba(148, 163, 184, .18); }
+    .progress > i { position: absolute; inset: 0 auto 0 0; width: var(--w, 0%); border-radius: inherit; background: linear-gradient(90deg, var(--gold), #fff1a6, var(--orange)); overflow: hidden; }
+    .progress > i::after { position: absolute; inset: 0; content: ""; background: linear-gradient(110deg, transparent, rgba(255,255,255,.42), transparent); transform: translateX(-100%); animation: shimmer 2.4s infinite; }
+    .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .section-title span { color: var(--muted); font-size: 13px; }
+    .podium-panel { padding: 20px; margin-bottom: 18px; }
+    .podium { display: grid; grid-template-columns: 1fr 1.2fr 1fr; align-items: end; gap: 14px; min-height: 210px; }
+    .place { position: relative; min-height: 160px; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(17, 24, 39, .7); overflow: hidden; }
+    .place::before { position: absolute; inset: auto -20% -52px -20%; height: var(--h, 82px); content: ""; z-index: 0; border-radius: 50% 50% 0 0; background: var(--tone, rgba(148, 163, 184, .15)); }
+    .place > * { position: relative; z-index: 1; }
+    .place.first { min-height: 206px; border-color: rgba(212,175,55,.6); box-shadow: 0 0 40px rgba(212,175,55,.16); --h: 122px; --tone: linear-gradient(180deg, rgba(212,175,55,.46), rgba(212,175,55,.12)); }
+    .place.second { --h: 92px; --tone: linear-gradient(180deg, rgba(203,213,225,.34), rgba(203,213,225,.08)); }
+    .place.third { --h: 78px; --tone: linear-gradient(180deg, rgba(183,121,59,.34), rgba(183,121,59,.08)); }
+    .crown { display: inline-block; font-size: 25px; animation: bounce 2s ease-in-out infinite; }
+    .place-rank { margin-bottom: 12px; color: var(--muted); font-weight: 900; }
+    .place-name { font-size: 25px; font-weight: 900; }
+    .place-account { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .place-money { margin-top: 12px; color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: clamp(22px, 3vw, 32px); font-weight: 900; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px; margin-bottom: 18px; }
+    .seg { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(10, 14, 26, .52); }
+    .seg button, .btn, .icon-btn, .type-btn { min-height: 36px; border: 1px solid transparent; border-radius: var(--radius); background: transparent; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease; }
+    .seg button { padding: 8px 13px; color: var(--muted); font-size: 14px; font-weight: 800; }
+    .seg button.active { color: #10131f; background: var(--gold); box-shadow: 0 10px 24px rgba(212,175,55,.22); }
+    .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 13px; border-color: var(--line); background: rgba(26,33,56,.72); font-weight: 800; white-space: nowrap; }
+    .btn.primary { border-color: rgba(212,175,55,.38); background: linear-gradient(135deg, rgba(212,175,55,.96), rgba(249,115,22,.92)); color: #10131f; }
+    .btn.danger { border-color: rgba(244,63,94,.3); color: #fecdd3; }
+    .btn.cloud { border-color: rgba(59,130,246,.34); color: #bfdbfe; }
+    .btn:hover, .icon-btn:hover, .type-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(0,0,0,.24); border-color: rgba(212,175,55,.28); }
+    .table-panel { margin-bottom: 18px; overflow: hidden; }
+    .scroll { overflow-x: auto; border-radius: var(--radius); }
+    table { width: 100%; min-width: 1540px; border-collapse: collapse; }
+    th, td { padding: 13px 12px; border-bottom: 1px solid rgba(148,163,184,.11); text-align: left; white-space: nowrap; vertical-align: middle; }
+    th { position: sticky; top: 0; z-index: 2; background: #111827; color: var(--muted); font-size: 12px; font-weight: 900; }
+    td { color: #dbeafe; font-size: 14px; }
+    tbody tr:hover { background: rgba(59,130,246,.08); }
+    tbody tr.rank-1 { background: linear-gradient(90deg, rgba(212,175,55,.18), rgba(212,175,55,.02)); }
+    tbody tr.rank-2 { background: linear-gradient(90deg, rgba(203,213,225,.14), rgba(203,213,225,.01)); }
+    tbody tr.rank-3 { background: linear-gradient(90deg, rgba(183,121,59,.16), rgba(183,121,59,.01)); }
+    tbody tr.flash { animation: flashUpdate 1.5s ease; }
+    .rank { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 28px; padding: 0 8px; border-radius: var(--radius); background: rgba(148,163,184,.13); font-family: "JetBrains Mono", monospace; font-weight: 900; }
+    .seller { display: flex; flex-direction: column; gap: 3px; }
+    .seller strong { color: var(--text); font-size: 15px; }
+    .seller span { color: var(--muted); font-size: 12px; }
+    .badge { display: inline-flex; justify-content: center; min-width: 54px; padding: 4px 8px; border: 1px solid transparent; border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 900; }
+    .badge.ok { color: #bbf7d0; background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.3); }
+    .badge.warn { color: #fef08a; background: rgba(250,204,21,.1); border-color: rgba(250,204,21,.28); }
+    .badge.bad { color: #fecdd3; background: rgba(244,63,94,.1); border-color: rgba(244,63,94,.28); }
+    .badge.gray { color: #cbd5e1; background: rgba(148,163,184,.1); border-color: rgba(148,163,184,.2); }
+    .money-cell { cursor: pointer; color: var(--text); font-family: "JetBrains Mono", monospace; font-weight: 800; }
+    .money-cell:hover { color: var(--gold); text-decoration: underline; text-underline-offset: 4px; }
+    .mini-progress { min-width: 152px; }
+    .progress-note { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+    .streak { display: inline-flex; gap: 5px; padding: 4px 8px; border-radius: 999px; background: rgba(249,115,22,.13); color: #fed7aa; font-family: "JetBrains Mono", monospace; font-weight: 900; }
+    .icon-row { display: flex; gap: 6px; }
+    .icon-btn { display: inline-grid; place-items: center; width: 36px; min-width: 36px; height: 36px; border-color: var(--line); background: rgba(10,14,26,.36); font-size: 16px; }
+    .icon-btn:disabled { opacity: .38; cursor: not-allowed; transform: none; box-shadow: none; }
+    .charts { display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px; }
+    .chart-panel, .quick-panel { min-height: 360px; padding: 20px; }
+    .chart-wrap { position: relative; min-height: 294px; }
+    .chart-wrap svg { width: 100%; height: 294px; display: block; }
+    .grid-line { stroke: rgba(148,163,184,.15); stroke-width: 1; }
+    .axis { fill: #94a3b8; font-family: "JetBrains Mono", monospace; font-size: 11px; }
+    .trend-line { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(212,175,55,.32)); }
+    .trend-area { fill: url(#trendGradient); }
+    .point { fill: #0a0e1a; stroke: var(--gold); stroke-width: 2; cursor: pointer; }
+    .tooltip { position: absolute; left: 0; top: 0; z-index: 5; padding: 8px 10px; border: 1px solid rgba(212,175,55,.38); border-radius: var(--radius); background: rgba(10,14,26,.94); font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .12s ease; box-shadow: 0 14px 34px rgba(0,0,0,.32); }
+    .tooltip.show { opacity: 1; }
+    .quick-list { display: flex; flex-direction: column; gap: 10px; }
+    .quick-item { padding: 12px; border: 1px solid rgba(148,163,184,.13); border-radius: var(--radius); background: rgba(10,14,26,.32); }
+    .quick-line { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .quick-line span { color: var(--muted); font-size: 12px; }
+    .bar { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(148,163,184,.17); }
+    .bar i { display: block; width: var(--w, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green), var(--gold)); }
+    .modal-layer { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(2,6,23,.72); backdrop-filter: blur(14px); }
+    .modal-layer.open { display: flex; }
+    .modal { width: min(980px, 100%); max-height: min(88vh, 920px); overflow: hidden; border: 1px solid rgba(212,175,55,.22); border-radius: var(--radius); background: linear-gradient(180deg, #1a2138, #0f172a); box-shadow: 0 30px 100px rgba(0,0,0,.5); animation: modalIn .24s ease forwards; }
+    .modal.narrow { width: min(680px, 100%); }
+    .modal.wide { width: min(1120px, 100%); }
+    .modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; padding: 20px 20px 14px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { font-family: "Noto Serif SC", serif; font-size: 24px; }
+    .modal-sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .close { display: inline-grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(10,14,26,.36); color: var(--muted); cursor: pointer; font-size: 22px; }
+    .modal-body { max-height: calc(min(88vh, 920px) - 78px); padding: 20px; overflow: auto; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .goal-grid { display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 12px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .summary-grid.dense { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { color: var(--muted); font-size: 13px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid rgba(148,163,184,.2); border-radius: var(--radius); outline: none; background: rgba(10,14,26,.52); color: var(--text); }
+    .field textarea { min-height: 120px; resize: vertical; font-family: "JetBrains Mono", monospace; font-size: 12px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(212,175,55,.54); box-shadow: 0 0 0 3px rgba(212,175,55,.12); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .hint { margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .summary-card { padding: 14px; border: 1px solid rgba(148,163,184,.16); border-radius: var(--radius); background: rgba(10,14,26,.34); }
+    .summary-card.full { border-color: rgba(212,175,55,.34); background: rgba(212,175,55,.09); }
+    .summary-card.deposit { border-color: rgba(59,130,246,.34); background: rgba(59,130,246,.09); }
+    .summary-card.final { border-color: rgba(16,185,129,.34); background: rgba(16,185,129,.09); }
+    .summary-card.total { border-color: rgba(249,115,22,.44); background: rgba(249,115,22,.12); }
+    .summary-label { margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 900; }
+    .summary-value { margin: 0; font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 900; word-break: break-word; }
+    .summary-small { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .tx-entry { display: grid; grid-template-columns: minmax(150px, 1fr) auto auto; gap: 10px; align-items: end; margin-bottom: 16px; padding: 14px; border: 1px solid rgba(148,163,184,.14); border-radius: var(--radius); background: rgba(10,14,26,.3); }
+    .tx-entry.deposit-mode { grid-template-columns: minmax(150px, 1fr) minmax(170px, 1fr) auto auto; }
+    .type-toggle { display: inline-flex; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(10,14,26,.42); }
+    .type-btn { padding: 8px 12px; color: var(--muted); font-weight: 900; white-space: nowrap; }
+    .type-btn.active[data-type="full"] { color: #10131f; background: var(--gold); }
+    .type-btn.active[data-type="deposit"] { color: #eff6ff; background: var(--blue); }
+    .type-btn.active[data-type="final"] { color: #ecfdf5; background: var(--green); }
+    .tx-list { display: flex; flex-direction: column; gap: 8px; }
+    .tx-item { display: grid; grid-template-columns: 60px 100px minmax(120px, 1fr) 42px; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(148,163,184,.12); border-radius: var(--radius); background: rgba(15,23,42,.64); animation: slideIn .22s ease both; }
+    .type-tag { display: inline-flex; justify-content: center; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; }
+    .type-tag.full { color: #10131f; background: var(--gold); }
+    .type-tag.deposit { color: #dbeafe; background: rgba(59,130,246,.72); }
+    .type-tag.final { color: #dcfce7; background: rgba(16,185,129,.72); }
+    .empty { padding: 28px; border: 1px dashed rgba(148,163,184,.22); border-radius: var(--radius); color: var(--muted); text-align: center; background: rgba(10,14,26,.2); }
+    .daily-table { min-width: 860px; }
+    .toast-stack { position: fixed; right: 18px; bottom: 18px; z-index: 80; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast { min-width: min(340px, calc(100vw - 36px)); padding: 12px 14px; border: 1px solid rgba(16,185,129,.28); border-radius: var(--radius); background: rgba(15,23,42,.95); color: var(--text); box-shadow: 0 18px 44px rgba(0,0,0,.36); animation: toastIn .2s ease both; }
+    @keyframes gridMove { from { background-position: 0 0, 0 0; } to { background-position: 84px 84px, 84px 84px; } }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes livePulse { 0% { box-shadow: 0 0 0 0 rgba(244,63,94,.56); } 70% { box-shadow: 0 0 0 9px rgba(244,63,94,0); } 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0); } }
+    @keyframes bounce { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-8px) rotate(5deg); } }
+    @keyframes shimmer { to { transform: translateX(140%); } }
+    @keyframes flashUpdate { 0%,100% { box-shadow: inset 0 0 0 rgba(212,175,55,0); } 18%,60% { box-shadow: inset 0 0 0 999px rgba(212,175,55,.18); } }
+    @keyframes modalIn { from { opacity: 0; transform: scale(.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px; } }
+    @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header fade" style="--delay:0s">
+      <div>
+        <p class="eyebrow">私域组 / 小红书矩阵</p>
+        <h1>袁鹏A1组 业绩中心</h1>
+      </div>
+      <div class="meta">
+        <div class="pill" id="datePill"></div>
+        <div class="pill" id="syncPill"><i class="dot" id="syncDot"></i><strong id="syncMain">LOCAL</strong><span id="syncText">本地模式</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="stats fade" id="stats" style="--delay:.08s"></section>
+
+      <section class="panel podium-panel fade" style="--delay:.16s">
+        <div class="section-title">
+          <h2>🔥 今日战报 TOP 3</h2>
+          <span id="podiumDate"></span>
+        </div>
+        <div class="podium" id="podium"></div>
+      </section>
+
+      <section class="toolbar fade" style="--delay:.24s">
+        <div class="seg">
+          <button type="button" class="active" data-sort="today">今日业绩</button>
+          <button type="button" data-sort="month">月度业绩</button>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn cloud" id="syncBtn">☁️ 云端同步</button>
+          <button type="button" class="btn" id="goalsBtn">⚙️ 设置月度目标</button>
+          <button type="button" class="btn primary" id="metricsBtn">+ 录入数据指标</button>
+          <button type="button" class="btn danger" id="resetBtn">↻ 月度重置</button>
+        </div>
+      </section>
+
+      <section class="panel table-panel fade" style="--delay:.32s">
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>销售员</th>
+                <th>转私量</th>
+                <th>成交量</th>
+                <th>转化率</th>
+                <th>当日定金</th>
+                <th>当日尾款</th>
+                <th>当日全款</th>
+                <th>当日实际成交</th>
+                <th>月度定金</th>
+                <th>月度尾款</th>
+                <th>月度全款</th>
+                <th>月度实际成交</th>
+                <th>目标进度</th>
+                <th>日均所需</th>
+                <th>连胜</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="ranking"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="charts fade" style="--delay:.4s">
+        <div class="panel chart-panel">
+          <div class="section-title">
+            <h2>📈 月度团队业绩走势图</h2>
+            <span id="chartMonth"></span>
+          </div>
+          <div class="chart-wrap" id="chartWrap">
+            <div class="tooltip" id="chartTip"></div>
+            <svg id="trendChart" viewBox="0 0 800 300" role="img"></svg>
+          </div>
+        </div>
+        <div class="panel quick-panel">
+          <div class="section-title">
+            <h2>⚡ 今日成交速览</h2>
+            <span>按今日业绩排序</span>
+          </div>
+          <div class="quick-list" id="quickList"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-layer" id="modalLayer"></div>
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "yuanpeng_a1_sales_dashboard_v1";
+      const SYNC_CONFIG_KEY = "yuanpeng_a1_supabase_config_v1";
+      const SUPABASE_TABLE = "sales_dashboard_state";
+      const CLOUD_ROW_ID = "yuanpeng_a1";
+      const EMBEDDED_SUPABASE_CONFIG = {
+        url: "https://enqrpqyzrrygahabztnc.supabase.co",
+        anonKey: "sb_publishable_kwAu2zG7R2DkaGFgtwxCDg_AHGsYqeW"
+      };
+
+      const people = [
+        { id: "B", account: "小红书B", name: "袁鹏" },
+        { id: "E", account: "小红书E", name: "黄惠丹" },
+        { id: "C", account: "小红书C", name: "段毅" },
+        { id: "L", account: "小红书L", name: "王怡然" },
+        { id: "F", account: "小红书F", name: "曾景昇" },
+        { id: "D", account: "小红书D", name: "刘宇哲" },
+        { id: "G", account: "小红书G", name: "马允宏" }
+      ];
+
+      const typeMeta = {
+        full: { label: "全款", key: "fullPayment", className: "full" },
+        deposit: { label: "定金", key: "deposit", className: "deposit" },
+        final: { label: "尾款", key: "finalPayment", className: "final" }
+      };
+
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+      let state = loadState();
+      let sortMode = "today";
+      let flashPersonId = "";
+      let txModal = { personId: "", date: "", type: "full" };
+      let syncConfig = loadSyncConfig();
+      let supabaseClient = null;
+      let realtimeChannel = null;
+      let authSubscription = null;
+      let currentUser = null;
+      let remoteSaveTimer = 0;
+      let remoteReady = false;
+      let applyingRemote = false;
+
+      function pad2(value) { return String(value).padStart(2, "0"); }
+      function dateKey(date = new Date()) { return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`; }
+      function parseDate(key) { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); }
+      function addDays(key, offset) { const date = parseDate(key); date.setDate(date.getDate() + offset); return dateKey(date); }
+      function monthKey(key = dateKey()) { return key.slice(0, 7); }
+      function daysInMonth(month = monthKey()) { const [y, m] = month.split("-").map(Number); return new Date(y, m, 0).getDate(); }
+      function dayKeyOfMonth(month, day) { return `${month}-${pad2(day)}`; }
+      function currentDayNumber() { return parseDate(dateKey()).getDate(); }
+      function daysLeftInCurrentMonth() { return Math.max(daysInMonth(monthKey()) - currentDayNumber(), 0); }
+      function safeNumber(value) { const num = Number(value); return Number.isFinite(num) && num > 0 ? Math.round(num * 100) / 100 : 0; }
+      function safeInteger(value) { const num = Number(value); return Number.isFinite(num) && num > 0 ? Math.floor(num) : 0; }
+      function txId() { return `tx_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`; }
+      function escapeHTML(value) { return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char])); }
+      function money(value, digits = 0) {
+        return new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(safeNumber(value));
+      }
+      function percent(value, digits = 1) { return `${safeNumber(value).toFixed(digits)}%`; }
+      function formatDateCN(key) { return parseDate(key).toLocaleDateString("zh-CN", { month: "long", day: "numeric", weekday: "long" }); }
+
+      function defaultState() {
+        const entries = {};
+        const goals = {};
+        people.forEach((person) => { entries[person.id] = []; goals[person.id] = 50000; });
+        return { entries, goals, meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} } };
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? normalizeState(JSON.parse(raw)) : defaultState();
+        } catch (error) {
+          console.warn(error);
+          return defaultState();
+        }
+      }
+
+      function normalizeState(input) {
+        const next = defaultState();
+        if (!input || typeof input !== "object") return next;
+        people.forEach((person) => {
+          const list = input.entries && Array.isArray(input.entries[person.id]) ? input.entries[person.id] : [];
+          next.entries[person.id] = list.map(normalizeEntry).filter(Boolean);
+          const hasGoal = input.goals && Object.prototype.hasOwnProperty.call(input.goals, person.id);
+          next.goals[person.id] = hasGoal ? safeNumber(input.goals[person.id]) : 50000;
+        });
+        next.meta = {
+          goals: input.meta && input.meta.goals && typeof input.meta.goals === "object" ? input.meta.goals : {},
+          entries: input.meta && input.meta.entries && typeof input.meta.entries === "object" ? input.meta.entries : {},
+          deletedTx: input.meta && input.meta.deletedTx && typeof input.meta.deletedTx === "object" ? input.meta.deletedTx : {},
+          deletedDays: input.meta && input.meta.deletedDays && typeof input.meta.deletedDays === "object" ? input.meta.deletedDays : {}
+        };
+        applyDeletedMarkers(next);
+        return next;
+      }
+
+      function normalizeEntry(entry) {
+        if (!entry || typeof entry !== "object") return null;
+        const normalized = {
+          date: /^\d{4}-\d{2}-\d{2}$/.test(entry.date || "") ? entry.date : dateKey(),
+          privateCount: safeInteger(entry.privateCount),
+          dealsCount: safeInteger(entry.dealsCount),
+          deposit: 0,
+          depositOrderAmount: 0,
+          finalPayment: 0,
+          fullPayment: 0,
+          performanceTotal: 0,
+          transactions: []
+        };
+        const sourceTxs = Array.isArray(entry.transactions) ? entry.transactions : [];
+        sourceTxs.forEach((tx) => {
+          const amount = safeNumber(tx && tx.amount);
+          const type = tx && typeMeta[tx.type] ? tx.type : "";
+          if (!amount || !type) return;
+          const normalizedTx = { id: tx.id || txId(), amount, type, createdAt: tx.createdAt || new Date().toISOString() };
+          if (type === "deposit") normalizedTx.orderAmount = safeNumber(tx.orderAmount) || safeNumber(tx.dealAmount) || amount;
+          normalized.transactions.push(normalizedTx);
+        });
+        if (!normalized.transactions.length) {
+          [["deposit", "deposit"], ["finalPayment", "final"], ["fullPayment", "full"]].forEach(([field, type]) => {
+            const amount = safeNumber(entry[field]);
+            if (!amount) return;
+            const legacyTx = { id: txId(), amount, type };
+            legacyTx.createdAt = new Date().toISOString();
+            if (type === "deposit") legacyTx.orderAmount = safeNumber(entry.depositOrderAmount) || amount;
+            normalized.transactions.push(legacyTx);
+          });
+        }
+        return recalcEntry(normalized);
+      }
+
+      function recalcEntry(entry) {
+        entry.deposit = 0;
+        entry.depositOrderAmount = 0;
+        entry.finalPayment = 0;
+        entry.fullPayment = 0;
+        entry.performanceTotal = 0;
+        entry.transactions.forEach((tx) => {
+          const amount = safeNumber(tx.amount);
+          if (tx.type === "deposit") {
+            entry.deposit += amount;
+            entry.depositOrderAmount += safeNumber(tx.orderAmount) || amount;
+          }
+          if (tx.type === "final") entry.finalPayment += amount;
+          if (tx.type === "full") entry.fullPayment += amount;
+        });
+        entry.deposit = Math.round(entry.deposit * 100) / 100;
+        entry.depositOrderAmount = Math.round(entry.depositOrderAmount * 100) / 100;
+        entry.finalPayment = Math.round(entry.finalPayment * 100) / 100;
+        entry.fullPayment = Math.round(entry.fullPayment * 100) / 100;
+        entry.performanceTotal = Math.round((entry.depositOrderAmount + entry.fullPayment) * 100) / 100;
+        return entry;
+      }
+
+      function cleanupEntries() {
+        state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        applyDeletedMarkers(state);
+        people.forEach((person) => {
+          state.entries[person.id] = (state.entries[person.id] || [])
+            .map(normalizeEntry)
+            .filter((entry) => entry.privateCount || entry.dealsCount || entry.transactions.length);
+        });
+      }
+
+      function persistLocalState() {
+        cleanupEntries();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function saveState(options = {}) {
+        persistLocalState();
+        if (options.remote !== false && !applyingRemote) queueRemoteSave();
+      }
+
+      function nowIso() { return new Date().toISOString(); }
+      function entryMetaKey(personId, day) { return `${personId}|${day}`; }
+      function markEntryUpdated(personId, day) {
+        state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        state.meta.entries = state.meta.entries || {};
+        state.meta.entries[entryMetaKey(personId, day)] = nowIso();
+      }
+      function markGoalUpdated(personId) {
+        state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        state.meta.goals = state.meta.goals || {};
+        state.meta.goals[personId] = nowIso();
+      }
+      function markTransactionDeleted(txId) {
+        state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        state.meta.deletedTx = state.meta.deletedTx || {};
+        state.meta.deletedTx[txId] = nowIso();
+      }
+      function markDayDeleted(personId, day) {
+        state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        state.meta.deletedDays = state.meta.deletedDays || {};
+        state.meta.deletedDays[entryMetaKey(personId, day)] = nowIso();
+      }
+
+      function applyDeletedMarkers(targetState) {
+        const deletedTx = targetState.meta && targetState.meta.deletedTx ? targetState.meta.deletedTx : {};
+        const deletedDays = targetState.meta && targetState.meta.deletedDays ? targetState.meta.deletedDays : {};
+        people.forEach((person) => {
+          targetState.entries[person.id] = (targetState.entries[person.id] || [])
+            .filter((entry) => !deletedDays[entryMetaKey(person.id, entry.date)])
+            .map((entry) => {
+              entry.transactions = (entry.transactions || []).filter((tx) => !deletedTx[tx.id]);
+              return recalcEntry(entry);
+            });
+        });
+      }
+
+      function getPerson(id) { return people.find((person) => person.id === id); }
+      function getEntry(personId, day) { return (state.entries[personId] || []).find((entry) => entry.date === day) || null; }
+      function ensureEntry(personId, day) {
+        let entry = getEntry(personId, day);
+        if (!entry) {
+          entry = { date: day, privateCount: 0, dealsCount: 0, deposit: 0, depositOrderAmount: 0, finalPayment: 0, fullPayment: 0, performanceTotal: 0, transactions: [] };
+          state.entries[personId].push(entry);
+        }
+        return entry;
+      }
+      function removeEntry(personId, day) { state.entries[personId] = (state.entries[personId] || []).filter((entry) => entry.date !== day); }
+
+      function emptyMetrics() {
+        return { privateCount: 0, dealsCount: 0, deposit: 0, depositOrderAmount: 0, finalPayment: 0, fullPayment: 0, total: 0, cashReceived: 0, fullCount: 0, depositCount: 0, finalCount: 0, transactionCount: 0 };
+      }
+
+      function newerTime(a, b) {
+        return new Date(a || 0).getTime() >= new Date(b || 0).getTime();
+      }
+
+      function mergeStates(remoteInput, localInput) {
+        const remote = normalizeState(remoteInput || defaultState());
+        const local = normalizeState(localInput || defaultState());
+        const merged = defaultState();
+        merged.meta = {
+          goals: { ...(remote.meta && remote.meta.goals ? remote.meta.goals : {}), ...(local.meta && local.meta.goals ? local.meta.goals : {}) },
+          entries: { ...(remote.meta && remote.meta.entries ? remote.meta.entries : {}), ...(local.meta && local.meta.entries ? local.meta.entries : {}) },
+          deletedTx: { ...(remote.meta && remote.meta.deletedTx ? remote.meta.deletedTx : {}), ...(local.meta && local.meta.deletedTx ? local.meta.deletedTx : {}) },
+          deletedDays: { ...(remote.meta && remote.meta.deletedDays ? remote.meta.deletedDays : {}), ...(local.meta && local.meta.deletedDays ? local.meta.deletedDays : {}) }
+        };
+
+        people.forEach((person) => {
+          const remoteGoalTime = remote.meta.goals[person.id];
+          const localGoalTime = local.meta.goals[person.id];
+          if (remoteGoalTime || localGoalTime) {
+            merged.goals[person.id] = newerTime(localGoalTime, remoteGoalTime) ? local.goals[person.id] : remote.goals[person.id];
+            merged.meta.goals[person.id] = newerTime(localGoalTime, remoteGoalTime) ? localGoalTime : remoteGoalTime;
+          } else {
+            merged.goals[person.id] = Math.max(safeNumber(remote.goals[person.id]), safeNumber(local.goals[person.id]), 50000);
+          }
+
+          const byDate = new Map();
+          [...(remote.entries[person.id] || []), ...(local.entries[person.id] || [])].forEach((entry) => {
+            if (merged.meta.deletedDays[entryMetaKey(person.id, entry.date)]) return;
+            const existing = byDate.get(entry.date);
+            if (!existing) byDate.set(entry.date, normalizeEntry(entry));
+            else byDate.set(entry.date, mergeEntries(person.id, existing, entry, remote.meta, local.meta, merged.meta));
+          });
+          merged.entries[person.id] = Array.from(byDate.values())
+            .map(recalcEntry)
+            .filter((entry) => entry.privateCount || entry.dealsCount || entry.transactions.length)
+            .sort((a, b) => a.date.localeCompare(b.date));
+        });
+        return normalizeState(merged);
+      }
+
+      function mergeEntries(personId, aInput, bInput, remoteMeta, localMeta, mergedMeta) {
+        const a = normalizeEntry(aInput);
+        const b = normalizeEntry(bInput);
+        const key = entryMetaKey(personId, a.date);
+        const aTime = remoteMeta.entries && remoteMeta.entries[key] ? remoteMeta.entries[key] : "";
+        const bTime = localMeta.entries && localMeta.entries[key] ? localMeta.entries[key] : "";
+        const metricSource = newerTime(bTime, aTime) ? b : a;
+        const deletedTx = mergedMeta.deletedTx || {};
+        const txMap = new Map();
+        [...(a.transactions || []), ...(b.transactions || [])].forEach((tx) => {
+          if (deletedTx[tx.id]) return;
+          const existing = txMap.get(tx.id);
+          if (!existing || newerTime(tx.createdAt, existing.createdAt)) txMap.set(tx.id, { ...tx });
+        });
+        return recalcEntry({
+          date: a.date,
+          privateCount: metricSource.privateCount,
+          dealsCount: metricSource.dealsCount,
+          deposit: 0,
+          depositOrderAmount: 0,
+          finalPayment: 0,
+          fullPayment: 0,
+          performanceTotal: 0,
+          transactions: Array.from(txMap.values())
+        });
+      }
+
+      function summarizeEntry(entry) {
+        const metrics = emptyMetrics();
+        if (!entry) return metrics;
+        recalcEntry(entry);
+        metrics.privateCount = safeInteger(entry.privateCount);
+        metrics.dealsCount = safeInteger(entry.dealsCount);
+        metrics.deposit = safeNumber(entry.deposit);
+        metrics.depositOrderAmount = safeNumber(entry.depositOrderAmount);
+        metrics.finalPayment = safeNumber(entry.finalPayment);
+        metrics.fullPayment = safeNumber(entry.fullPayment);
+        metrics.total = safeNumber(entry.performanceTotal);
+        metrics.cashReceived = metrics.deposit + metrics.finalPayment + metrics.fullPayment;
+        (entry.transactions || []).forEach((tx) => {
+          if (tx.type === "full") metrics.fullCount += 1;
+          if (tx.type === "deposit") metrics.depositCount += 1;
+          if (tx.type === "final") metrics.finalCount += 1;
+        });
+        metrics.transactionCount = metrics.fullCount + metrics.depositCount + metrics.finalCount;
+        return metrics;
+      }
+      function addMetrics(sum, item) {
+        Object.keys(sum).forEach((key) => { sum[key] += item[key] || 0; });
+        sum.total = sum.depositOrderAmount + sum.fullPayment;
+        sum.cashReceived = sum.deposit + sum.finalPayment + sum.fullPayment;
+        return sum;
+      }
+      function dayMetrics(personId, day = dateKey()) { return summarizeEntry(getEntry(personId, day)); }
+      function monthMetrics(personId, month = monthKey()) {
+        return (state.entries[personId] || []).filter((entry) => entry.date.startsWith(month)).reduce((sum, entry) => addMetrics(sum, summarizeEntry(entry)), emptyMetrics());
+      }
+      function teamMetricsForDay(day = dateKey()) { return people.reduce((sum, person) => addMetrics(sum, dayMetrics(person.id, day)), emptyMetrics()); }
+      function teamMetricsForMonth(month = monthKey()) { return people.reduce((sum, person) => addMetrics(sum, monthMetrics(person.id, month)), emptyMetrics()); }
+      function dailyNeeded(done, goal) { const gap = Math.max(goal - done, 0); return gap ? gap / Math.max(daysLeftInCurrentMonth(), 1) : 0; }
+      function streakDays(personId, goal, month = monthKey()) {
+        if (!goal) return 0;
+        const dailyTarget = goal / daysInMonth(month);
+        let streak = 0;
+        for (let day = dateKey(); day.startsWith(month); day = addDays(day, -1)) {
+          if (dayMetrics(personId, day).total >= dailyTarget) streak += 1;
+          else break;
+        }
+        return streak;
+      }
+      function snapshot(person) {
+        const today = dayMetrics(person.id);
+        const monthly = monthMetrics(person.id);
+        const goal = safeNumber(state.goals[person.id]);
+        const progress = goal ? (monthly.total / goal) * 100 : 0;
+        return { person, today, monthly, goal, progress, dailyNeed: dailyNeeded(monthly.total, goal), streak: streakDays(person.id, goal) };
+      }
+
+      function renderAll(nextFlashPersonId = "") {
+        flashPersonId = nextFlashPersonId;
+        renderDate();
+        renderStats();
+        renderPodium();
+        renderRanking();
+        renderChart();
+        renderQuickList();
+        renderSyncStatus();
+        if (flashPersonId) {
+          setTimeout(() => {
+            $$(`tr[data-person="${flashPersonId}"]`).forEach((row) => row.classList.remove("flash"));
+            flashPersonId = "";
+          }, 1500);
+        }
+      }
+
+      function renderDate() {
+        const today = dateKey();
+        $("#datePill").innerHTML = `<strong>${today}</strong><span>${formatDateCN(today).replace(/^\d+月\d+日\s*/, "")}</span>`;
+      }
+
+      function renderStats() {
+        const teamMonth = teamMetricsForMonth();
+        const teamToday = teamMetricsForDay();
+        const teamYesterday = teamMetricsForDay(addDays(dateKey(), -1));
+        const teamGoal = people.reduce((sum, person) => sum + safeNumber(state.goals[person.id]), 0);
+        const progress = teamGoal ? (teamMonth.total / teamGoal) * 100 : 0;
+        const delta = compareDelta(teamToday.total, teamYesterday.total);
+        const dailyNeed = dailyNeeded(teamMonth.total, teamGoal);
+        $("#stats").innerHTML = [
+          statCard("本月团队业绩", money(teamMonth.total), `目标 ${money(teamGoal)} · 完成 ${percent(progress)}`, "🏆", progress),
+          statCard("今日实际成交", money(teamToday.total), `${teamToday.transactionCount} 笔明细 · <span class="${delta.className}">${delta.text}</span>`, "⚡"),
+          statCard("本月已收实款", money(teamMonth.cashReceived), `全款 ${money(teamMonth.fullPayment)} · 定金 ${money(teamMonth.deposit)} · 尾款 ${money(teamMonth.finalPayment)}`, "💳"),
+          statCard("本月剩余天数", `${daysLeftInCurrentMonth()} 天`, `团队日均还需 <span class="${dailyNeed > 0 ? "red" : "green"}">${money(dailyNeed)}</span>`, "⏳")
+        ].join("");
+      }
+      function statCard(label, value, sub, icon, progressValue) {
+        const progress = typeof progressValue === "number" ? `<div class="progress"><i style="--w:${Math.min(progressValue, 100)}%"></i></div>` : "";
+        return `<article class="stat"><div class="stat-top"><span>${label}</span><span>${icon}</span></div><p class="stat-value">${value}</p>${progress}<div class="stat-sub">${sub}</div></article>`;
+      }
+      function compareDelta(today, yesterday) {
+        if (!yesterday && !today) return { text: "较昨日持平", className: "" };
+        if (!yesterday) return { text: "昨日无数据", className: "green" };
+        const ratio = ((today - yesterday) / yesterday) * 100;
+        return ratio >= 0 ? { text: `较昨日 ↑ ${Math.abs(ratio).toFixed(1)}%`, className: "green" } : { text: `较昨日 ↓ ${Math.abs(ratio).toFixed(1)}%`, className: "red" };
+      }
+      function renderPodium() {
+        $("#podiumDate").textContent = formatDateCN(dateKey());
+        const ranked = people.map((person) => ({ person, metrics: dayMetrics(person.id) })).filter((item) => item.metrics.total > 0).sort((a, b) => b.metrics.total - a.metrics.total || b.metrics.transactionCount - a.metrics.transactionCount).slice(0, 3);
+        $("#podium").innerHTML = [podiumPlace(ranked[1], 2, "second"), podiumPlace(ranked[0], 1, "first"), podiumPlace(ranked[2], 3, "third")].join("");
+      }
+      function podiumPlace(item, rank, className) {
+        if (!item) return `<div class="place ${className}"><div class="place-rank">NO.${rank}</div><div class="place-account">等待上榜</div></div>`;
+        const crown = rank === 1 ? `<span class="crown">👑</span>` : "";
+        return `<div class="place ${className}"><div class="place-rank">${crown} NO.${rank}</div><div class="place-name">${escapeHTML(item.person.name)}</div><div class="place-account">${escapeHTML(item.person.account)}</div><div class="place-money">${money(item.metrics.total)}</div><div class="place-account">${item.metrics.transactionCount} 笔成交明细</div></div>`;
+      }
+      function renderRanking() {
+        const rows = people.map(snapshot).sort((a, b) => {
+          const primary = sortMode === "today" ? b.today.total - a.today.total : b.monthly.total - a.monthly.total;
+          return primary || b.monthly.total - a.monthly.total || a.person.name.localeCompare(b.person.name, "zh-CN");
+        });
+        $("#ranking").innerHTML = rows.map((item, index) => rankingRow(item, index + 1)).join("");
+      }
+      function rankingRow(item, rank) {
+        const { person, today, monthly, goal, progress, dailyNeed, streak } = item;
+        const conversion = today.privateCount ? (today.dealsCount / today.privateCount) * 100 : 0;
+        return `
+          <tr class="${rank <= 3 ? `rank-${rank}` : ""} ${person.id === flashPersonId ? "flash" : ""}" data-person="${person.id}">
+            <td><span class="rank">${rank}${rank === 1 ? " 👑" : ""}</span></td>
+            <td><div class="seller"><strong>${escapeHTML(person.name)}</strong><span>${escapeHTML(person.account)}</span></div></td>
+            <td class="money">${today.privateCount}</td>
+            <td class="money">${today.dealsCount}</td>
+            <td>${conversionBadge(conversion, today.privateCount)}</td>
+            <td class="money-cell blue" data-person="${person.id}">${money(today.deposit)}</td>
+            <td class="money-cell green" data-person="${person.id}">${money(today.finalPayment)}</td>
+            <td class="money-cell gold" data-person="${person.id}">${money(today.fullPayment)}</td>
+            <td class="money-cell orange" data-person="${person.id}">${money(today.total)}</td>
+            <td class="money blue">${money(monthly.deposit)}</td>
+            <td class="money green">${money(monthly.finalPayment)}</td>
+            <td class="money gold">${money(monthly.fullPayment)}</td>
+            <td class="money orange">${money(monthly.total)}</td>
+            <td>${progressBlock(progress, goal)}</td>
+            <td class="money ${dailyNeed > 0 ? "red" : "green"}">${money(dailyNeed)}</td>
+            <td>${streak >= 2 ? `<span class="streak">🔥 ${streak}</span>` : `<span class="money">${streak}</span>`}</td>
+            <td><div class="icon-row"><button class="icon-btn" data-action="details" data-person="${person.id}" title="月度详情">📊</button><button class="icon-btn" data-action="tx" data-person="${person.id}" title="录入成交">💰</button><button class="icon-btn" data-action="metrics" data-person="${person.id}" title="录入指标">✏️</button></div></td>
+          </tr>
+        `;
+      }
+      function conversionBadge(value, hasPrivateCount) {
+        if (!hasPrivateCount) return `<span class="badge gray">--</span>`;
+        const className = value >= 25 ? "ok" : value >= 12 ? "warn" : "bad";
+        return `<span class="badge ${className}">${value.toFixed(1)}%</span>`;
+      }
+      function progressBlock(value, goal) {
+        const shown = Math.min(value, 100);
+        return `<div class="mini-progress"><div class="progress-note"><strong>${goal ? percent(value) : "未设置"}</strong><span>${money(goal)}</span></div><div class="progress"><i style="--w:${shown}%"></i></div></div>`;
+      }
+
+      function renderChart() {
+        const month = monthKey();
+        $("#chartMonth").textContent = month;
+        const totalDays = daysInMonth(month);
+        const values = Array.from({ length: totalDays }, (_, i) => teamMetricsForDay(dayKeyOfMonth(month, i + 1)).total);
+        const max = Math.max(...values, 1);
+        const width = 800, height = 300;
+        const pad = { left: 56, right: 22, top: 24, bottom: 38 };
+        const plotW = width - pad.left - pad.right;
+        const plotH = height - pad.top - pad.bottom;
+        const baseY = height - pad.bottom;
+        const points = values.map((value, i) => ({ day: i + 1, value, x: pad.left + (totalDays === 1 ? 0 : (i / (totalDays - 1)) * plotW), y: pad.top + plotH - (value / max) * plotH }));
+        const line = points.map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+        const area = `${line} L${points[points.length - 1].x.toFixed(2)},${baseY} L${points[0].x.toFixed(2)},${baseY} Z`;
+        const grid = Array.from({ length: 5 }, (_, i) => {
+          const ratio = i / 4;
+          const y = pad.top + ratio * plotH;
+          return `<line class="grid-line" x1="${pad.left}" x2="${width - pad.right}" y1="${y}" y2="${y}"></line><text class="axis" x="8" y="${y + 4}">${money(max * (1 - ratio))}</text>`;
+        }).join("");
+        const xLabels = points.filter((p) => p.day === 1 || p.day === totalDays || p.day % 5 === 0).map((p) => `<text class="axis" x="${p.x}" y="${height - 10}" text-anchor="middle">${p.day}</text>`).join("");
+        const circles = points.map((p) => `<circle class="point" cx="${p.x}" cy="${p.y}" r="${p.value ? 4 : 3}" data-day="${p.day}" data-value="${p.value}"></circle>`).join("");
+        $("#trendChart").innerHTML = `<defs><linearGradient id="trendGradient" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#d4af37" stop-opacity=".36"></stop><stop offset="70%" stop-color="#d4af37" stop-opacity=".08"></stop><stop offset="100%" stop-color="#d4af37" stop-opacity="0"></stop></linearGradient></defs>${grid}${xLabels}<path class="trend-area" d="${area}"></path><path class="trend-line" d="${line}"></path>${circles}`;
+        bindChartTooltip();
+      }
+      function bindChartTooltip() {
+        const tip = $("#chartTip");
+        const wrap = $("#chartWrap");
+        $$(".point").forEach((point) => {
+          point.addEventListener("mousemove", (event) => {
+            const rect = wrap.getBoundingClientRect();
+            tip.innerHTML = `<strong>${monthKey()}-${pad2(point.dataset.day)}</strong><br><span class="money">${money(point.dataset.value)}</span>`;
+            tip.style.left = `${event.clientX - rect.left + 12}px`;
+            tip.style.top = `${event.clientY - rect.top - 8}px`;
+            tip.classList.add("show");
+          });
+          point.addEventListener("mouseleave", () => tip.classList.remove("show"));
+        });
+      }
+      function renderQuickList() {
+        const list = people.map((person) => ({ person, metrics: dayMetrics(person.id) })).sort((a, b) => b.metrics.total - a.metrics.total || b.metrics.transactionCount - a.metrics.transactionCount);
+        const max = Math.max(...list.map((item) => item.metrics.total), 1);
+        $("#quickList").innerHTML = list.map((item, index) => {
+          const width = item.metrics.total ? (item.metrics.total / max) * 100 : 0;
+          return `<div class="quick-item"><div class="quick-line"><strong>${index + 1}. ${escapeHTML(item.person.name)}</strong><span class="money">${money(item.metrics.total)}</span></div><div class="quick-line"><span>${escapeHTML(item.person.account)}</span><span>${item.metrics.transactionCount} 笔明细 / 成交单 ${item.metrics.dealsCount}</span></div><div class="bar"><i style="--w:${width}%"></i></div></div>`;
+        }).join("");
+      }
+
+      function modalShell(title, sub, body, size = "wide") {
+        return `<div class="modal ${size}" role="dialog" aria-modal="true"><div class="modal-head"><div><h2>${title}</h2><p class="modal-sub">${sub}</p></div><button type="button" class="close" data-close title="关闭">×</button></div><div class="modal-body">${body}</div></div>`;
+      }
+      function openModal(markup, onMount) {
+        const layer = $("#modalLayer");
+        layer.innerHTML = markup;
+        layer.classList.add("open");
+        document.body.style.overflow = "hidden";
+        $$("[data-close]").forEach((button) => button.addEventListener("click", closeModal));
+        if (onMount) requestAnimationFrame(onMount);
+      }
+      function closeModal() {
+        $("#modalLayer").classList.remove("open");
+        $("#modalLayer").innerHTML = "";
+        document.body.style.overflow = "";
+      }
+
+      function openTransactionModal(personId, day = dateKey(), fresh = true) {
+        txModal = { personId, date: day, type: fresh ? "full" : (txModal.type || "full") };
+        renderTransactionModal(true);
+      }
+      function renderTransactionModal(focus = false) {
+        const person = getPerson(txModal.personId);
+        if (!person) return;
+        const entry = getEntry(person.id, txModal.date);
+        const metrics = summarizeEntry(entry);
+        const txs = entry ? [...entry.transactions].reverse() : [];
+        const body = `
+          <div class="field" style="max-width:240px;margin-bottom:14px;"><label for="txDate">日期切换</label><input type="date" id="txDate" value="${txModal.date}"></div>
+          <div class="summary-grid">
+            ${txSummary("full", metrics.fullPayment, metrics.fullCount)}
+            ${txSummary("deposit", metrics.deposit, metrics.depositCount, `计业绩 ${money(metrics.depositOrderAmount)}`)}
+            ${txSummary("final", metrics.finalPayment, metrics.finalCount, "不计入业绩")}
+            <div class="summary-card total"><p class="summary-label">当日实际成交</p><p class="summary-value">${money(metrics.total)}</p><p class="summary-small">${metrics.transactionCount} 笔</p></div>
+          </div>
+          <form class="tx-entry ${txModal.type === "deposit" ? "deposit-mode" : ""}" id="txForm">
+            <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
+            <div class="field" id="txOrderField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txOrderAmount">订单金额（计入实际成交）</label><input type="number" id="txOrderAmount" inputmode="decimal" min="0" step="0.01" placeholder="例：订单2400，定金400，这里填2400"></div>
+            <div><label class="summary-label" style="display:block;margin-bottom:7px;">类型</label><div class="type-toggle" id="typeToggle">${typeButton("full")}${typeButton("deposit")}${typeButton("final")}</div></div>
+            <button type="submit" class="btn primary">+ 新增</button>
+          </form>
+          <div class="tx-list">${txs.length ? txs.map((tx, index) => txItem(tx, txs.length - index)).join("") : `<div class="empty">这一天还没有成交明细。</div>`}</div>
+        `;
+        openModal(modalShell(`${escapeHTML(person.name)} · ${formatDateCN(txModal.date)}`, `当前共 ${metrics.transactionCount} 笔成交明细`, body, "wide"), () => bindTransactionModal(focus));
+      }
+      function txSummary(type, amount, count, extra = "") {
+        const meta = typeMeta[type];
+        return `<div class="summary-card ${meta.className}"><p class="summary-label">${meta.label}</p><p class="summary-value">${money(amount)}</p><p class="summary-small">${count} 笔${extra ? ` · ${extra}` : ""}</p></div>`;
+      }
+      function typeButton(type) { return `<button type="button" class="type-btn ${txModal.type === type ? "active" : ""}" data-type="${type}">${typeMeta[type].label}</button>`; }
+      function txAmountLabel() { return txModal.type === "deposit" ? "定金到账" : txModal.type === "final" ? "尾款到账" : "全款金额"; }
+      function txAmountPlaceholder() { return txModal.type === "deposit" ? "输入实际收到的定金，如 400" : txModal.type === "final" ? "输入尾款到账金额，不计入业绩" : "输入全款金额，回车提交"; }
+      function txText(tx) {
+        const amount = safeNumber(tx.amount);
+        if (tx.type === "deposit") return `定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)}`;
+        if (tx.type === "final") return `${money(amount)} · 不计入业绩`;
+        return money(amount);
+      }
+      function txItem(tx, index) {
+        const meta = typeMeta[tx.type];
+        return `<div class="tx-item"><span class="money">#${index}</span><span class="type-tag ${meta.className}">${meta.label}</span><strong class="money">${txText(tx)}</strong><button class="icon-btn" title="删除该笔" data-delete-tx="${tx.id}">×</button></div>`;
+      }
+      function bindTransactionModal(focus) {
+        const dateInput = $("#txDate");
+        const amountInput = $("#txAmount");
+        dateInput.addEventListener("change", () => { txModal.date = dateInput.value || dateKey(); renderTransactionModal(true); });
+        $$("#typeToggle .type-btn").forEach((button) => button.addEventListener("click", () => {
+          txModal.type = button.dataset.type;
+          $$("#typeToggle .type-btn").forEach((btn) => btn.classList.toggle("active", btn === button));
+          syncTxFields();
+          amountInput.focus();
+        }));
+        $("#txForm").addEventListener("submit", (event) => { event.preventDefault(); addTransaction(); });
+        $$("[data-delete-tx]").forEach((button) => button.addEventListener("click", () => deleteTransaction(button.dataset.deleteTx)));
+        if (focus) amountInput.focus();
+      }
+      function syncTxFields() {
+        const isDeposit = txModal.type === "deposit";
+        $("#txForm").classList.toggle("deposit-mode", isDeposit);
+        $("#txOrderField").style.display = isDeposit ? "" : "none";
+        $("#txAmountLabel").textContent = txAmountLabel();
+        $("#txAmount").placeholder = txAmountPlaceholder();
+      }
+      function addTransaction() {
+        if (!requireEdit()) return;
+        const amount = safeNumber($("#txAmount").value);
+        if (!amount) { toast("请输入有效收款金额"); $("#txAmount").focus(); return; }
+        let orderAmount = 0;
+        if (txModal.type === "deposit") {
+          orderAmount = safeNumber($("#txOrderAmount").value);
+          if (!orderAmount) { toast("请输入这笔定金对应的订单金额"); $("#txOrderAmount").focus(); return; }
+          if (orderAmount < amount) { toast("订单金额不能小于定金到账金额"); $("#txOrderAmount").focus(); return; }
+        }
+        const entry = ensureEntry(txModal.personId, txModal.date);
+        const tx = { id: txId(), amount, type: txModal.type };
+        tx.createdAt = nowIso();
+        if (txModal.type === "deposit") tx.orderAmount = orderAmount;
+        entry.transactions.push(tx);
+        recalcEntry(entry);
+        markEntryUpdated(txModal.personId, txModal.date);
+        saveState();
+        renderAll(txModal.personId);
+        renderTransactionModal(true);
+        toast("成交明细已新增");
+      }
+      function deleteTransaction(id) {
+        if (!requireEdit()) return;
+        const entry = getEntry(txModal.personId, txModal.date);
+        if (!entry) return;
+        const tx = entry.transactions.find((item) => item.id === id);
+        if (!tx) return;
+        if (!confirm(`确认删除这笔${typeMeta[tx.type].label} ${txText(tx)}？`)) return;
+        markTransactionDeleted(tx.id);
+        entry.transactions = entry.transactions.filter((item) => item.id !== id);
+        recalcEntry(entry);
+        markEntryUpdated(txModal.personId, txModal.date);
+        saveState();
+        pushRemoteState();
+        renderAll(txModal.personId);
+        renderTransactionModal(false);
+        toast("成交明细已删除");
+      }
+
+      function openMetricsModal(defaultPersonId = people[0].id, defaultDate = dateKey()) {
+        if (!requireEdit()) return;
+        const options = people.map((person) => `<option value="${person.id}" ${person.id === defaultPersonId ? "selected" : ""}>${person.name} / ${person.account}</option>`).join("");
+        const body = `<form id="metricsForm"><div class="form-grid"><div class="field"><label for="metricPerson">销售员</label><select id="metricPerson">${options}</select></div><div class="field"><label for="metricDate">日期</label><input type="date" id="metricDate" value="${defaultDate}"></div><div class="field"><label for="privateCount">转私量</label><input type="number" id="privateCount" min="0" step="1"></div><div class="field"><label for="dealsCount">成交量</label><input type="number" id="dealsCount" min="0" step="1"></div></div><p class="hint">成交金额请在主表格点击当日实际成交逐笔录入；定金需填写到账定金和订单金额。</p><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存指标</button></div></form>`;
+        openModal(modalShell("录入数据指标", "转私量和成交单数可以补录历史日期", body, "narrow"), bindMetricsModal);
+      }
+      function bindMetricsModal() {
+        const personInput = $("#metricPerson"), dateInput = $("#metricDate"), privateInput = $("#privateCount"), dealsInput = $("#dealsCount");
+        const hydrate = () => { const m = dayMetrics(personInput.value, dateInput.value || dateKey()); privateInput.value = m.privateCount || ""; dealsInput.value = m.dealsCount || ""; };
+        personInput.addEventListener("change", hydrate);
+        dateInput.addEventListener("change", hydrate);
+        hydrate();
+        $("#metricsForm").addEventListener("submit", (event) => {
+          event.preventDefault();
+          const personId = personInput.value;
+          const day = dateInput.value || dateKey();
+          const entry = ensureEntry(personId, day);
+          entry.privateCount = safeInteger(privateInput.value);
+          entry.dealsCount = safeInteger(dealsInput.value);
+          recalcEntry(entry);
+          markEntryUpdated(personId, day);
+          saveState();
+          closeModal();
+          renderAll(personId);
+          toast("数据指标已保存");
+        });
+      }
+      function openGoalsModal() {
+        if (!requireEdit()) return;
+        const body = `<form id="goalsForm"><div class="goal-grid">${people.map((person) => `<div class="field"><label for="goal-${person.id}">${person.name}</label><input type="number" id="goal-${person.id}" data-goal="${person.id}" min="0" step="100" value="${safeNumber(state.goals[person.id])}"></div>`).join("")}</div><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存目标</button></div></form>`;
+        openModal(modalShell("设置月度目标", "每位销售员可单独设置当月业绩目标金额", body, "wide"), () => {
+          $("#goalsForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            $$("[data-goal]").forEach((input) => {
+              state.goals[input.dataset.goal] = safeNumber(input.value);
+              markGoalUpdated(input.dataset.goal);
+            });
+            saveState();
+            closeModal();
+            renderAll();
+            toast("月度目标已更新");
+          });
+        });
+      }
+      function openMonthlyDetail(personId) {
+        const person = getPerson(personId);
+        if (!person) return;
+        const today = dayMetrics(personId);
+        const monthly = monthMetrics(personId);
+        const goal = safeNumber(state.goals[personId]);
+        const progress = goal ? (monthly.total / goal) * 100 : 0;
+        const need = dailyNeeded(monthly.total, goal);
+        const streak = streakDays(personId, goal);
+        const body = `
+          <div class="summary-grid dense">
+            ${detailSummary("今日实际成交", money(today.total), `${today.transactionCount} 笔明细`, "total")}
+            ${detailSummary("连胜", `${streak} 天`, streak >= 2 ? "🔥 连续达标" : "继续冲刺", "")}
+            ${detailSummary("月度成交单", `${monthly.dealsCount} 单`, `转私 ${monthly.privateCount}`, "")}
+            ${detailSummary("月度定金", money(monthly.deposit), `${monthly.depositCount} 笔 · 计业绩 ${money(monthly.depositOrderAmount)}`, "deposit")}
+            ${detailSummary("月度尾款", money(monthly.finalPayment), `${monthly.finalCount} 笔 · 不计业绩`, "final")}
+            ${detailSummary("月度全款", money(monthly.fullPayment), `${monthly.fullCount} 笔`, "full")}
+            ${detailSummary("月度实际成交", money(monthly.total), `${monthly.transactionCount} 笔明细`, "total")}
+            ${detailSummary("目标", money(goal), `完成 ${percent(progress)}`, "")}
+            ${detailSummary("日均所需", money(need), need > 0 ? "未完成差距" : "目标已覆盖", need > 0 ? "" : "final")}
+          </div>
+          <div class="scroll"><table class="daily-table"><thead><tr><th>日期</th><th>成交单</th><th>定金</th><th>尾款</th><th>全款</th><th>实际成交</th><th>操作</th></tr></thead><tbody>${dailyRows(personId, monthKey())}</tbody></table></div>
+        `;
+        openModal(modalShell(`${escapeHTML(person.name)} · 月度详情`, `${monthKey()} 全面汇总`, body, "wide"), () => bindMonthlyDetail(personId));
+      }
+      function detailSummary(label, value, small, className) {
+        return `<div class="summary-card ${className}"><p class="summary-label">${label}</p><p class="summary-value">${value}</p><p class="summary-small">${small}</p></div>`;
+      }
+      function dailyRows(personId, month) {
+        return Array.from({ length: daysInMonth(month) }, (_, i) => {
+          const day = dayKeyOfMonth(month, i + 1);
+          const m = dayMetrics(personId, day);
+          const hasData = getEntry(personId, day);
+          return `<tr><td class="money">${day}</td><td class="money">${m.dealsCount}</td><td class="money blue">${money(m.deposit)}</td><td class="money green">${money(m.finalPayment)}</td><td class="money gold">${money(m.fullPayment)}</td><td class="money orange">${money(m.total)}</td><td><div class="icon-row"><button class="icon-btn" data-detail-tx="${day}" title="查看该日成交明细">💰</button><button class="icon-btn" data-delete-day="${day}" ${hasData ? "" : "disabled"} title="删除整日">×</button></div></td></tr>`;
+        }).join("");
+      }
+      function bindMonthlyDetail(personId) {
+        $$("[data-detail-tx]").forEach((button) => button.addEventListener("click", () => openTransactionModal(personId, button.dataset.detailTx)));
+        $$("[data-delete-day]").forEach((button) => button.addEventListener("click", () => {
+          if (!requireEdit()) return;
+          const day = button.dataset.deleteDay;
+          if (!confirm(`确认删除 ${day} 的全部数据？`)) return;
+          const entry = getEntry(personId, day);
+          if (entry) (entry.transactions || []).forEach((tx) => markTransactionDeleted(tx.id));
+          markDayDeleted(personId, day);
+          removeEntry(personId, day);
+          markEntryUpdated(personId, day);
+          saveState();
+          pushRemoteState();
+          renderAll(personId);
+          openMonthlyDetail(personId);
+          toast("整日数据已删除");
+        }));
+      }
+      function resetCurrentMonth() {
+        if (!requireEdit()) return;
+        const month = monthKey();
+        if (!confirm(`确认清空 ${month} 的所有 entries？目标设置会保留。`)) return;
+        people.forEach((person) => {
+          (state.entries[person.id] || []).filter((entry) => entry.date.startsWith(month)).forEach((entry) => {
+            (entry.transactions || []).forEach((tx) => markTransactionDeleted(tx.id));
+            markDayDeleted(person.id, entry.date);
+            markEntryUpdated(person.id, entry.date);
+          });
+          state.entries[person.id] = (state.entries[person.id] || []).filter((entry) => !entry.date.startsWith(month));
+        });
+        saveState();
+        pushRemoteState();
+        renderAll();
+        toast("本月数据已重置，目标设置已保留");
+      }
+
+      function loadSyncConfig() {
+        const embedded = {
+          url: EMBEDDED_SUPABASE_CONFIG.url.trim(),
+          anonKey: EMBEDDED_SUPABASE_CONFIG.anonKey.trim()
+        };
+        try {
+          const raw = localStorage.getItem(SYNC_CONFIG_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          const saved = { url: parsed.url || "", anonKey: parsed.anonKey || "" };
+          if (saved.url && saved.anonKey) return saved;
+          if (embedded.url && embedded.anonKey && !embedded.anonKey.includes("PASTE_SUPABASE")) return embedded;
+          return { url: "", anonKey: "" };
+        } catch {
+          if (embedded.url && embedded.anonKey && !embedded.anonKey.includes("PASTE_SUPABASE")) return embedded;
+          return { url: "", anonKey: "" };
+        }
+      }
+      function saveSyncConfig(config) {
+        syncConfig = { url: String(config.url || "").trim(), anonKey: String(config.anonKey || "").trim() };
+        localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(syncConfig));
+      }
+      function hasSyncConfig() { return Boolean(syncConfig.url && syncConfig.anonKey); }
+      function canEdit() { return true; }
+      function requireEdit() { return true; }
+      function renderAuthState() {
+        const button = $("#authBtn");
+        if (!button) return;
+        button.textContent = currentUser ? `👤 ${currentUser.email || "已登录"} / 退出` : "🔐 登录编辑";
+        button.classList.toggle("primary", Boolean(currentUser));
+      }
+      function renderSyncStatus(statusText) {
+        const dot = $("#syncDot");
+        const main = $("#syncMain");
+        const text = $("#syncText");
+        dot.classList.remove("online", "syncing");
+        if (remoteReady) {
+          dot.classList.add("online");
+          main.textContent = "LIVE";
+          text.textContent = statusText || "Supabase 实时同步";
+        } else if (hasSyncConfig()) {
+          dot.classList.add("syncing");
+          main.textContent = "SYNC";
+          text.textContent = statusText || "正在连接云端";
+        } else {
+          main.textContent = "LOCAL";
+          text.textContent = statusText || "本地模式";
+        }
+      }
+      function openSyncModal() {
+        const sql = `-- 这段 SQL 也已保存为 supabase_setup.sql\ncreate table if not exists public.sales_dashboard_state (\n  id text primary key,\n  data jsonb not null default '{}'::jsonb,\n  updated_at timestamptz not null default now()\n);\n\nalter table public.sales_dashboard_state enable row level security;\n\ngrant usage on schema public to anon, authenticated;\ngrant select, insert, update on public.sales_dashboard_state to anon;\ngrant select, insert, update on public.sales_dashboard_state to authenticated;\n\ndrop policy if exists \"sales_dashboard_select\" on public.sales_dashboard_state;\ndrop policy if exists \"sales_dashboard_insert\" on public.sales_dashboard_state;\ndrop policy if exists \"sales_dashboard_update\" on public.sales_dashboard_state;\n\ncreate policy \"sales_dashboard_select\" on public.sales_dashboard_state\nfor select to anon, authenticated\nusing (id = 'yuanpeng_a1');\n\ncreate policy \"sales_dashboard_insert\" on public.sales_dashboard_state\nfor insert to anon, authenticated\nwith check (id = 'yuanpeng_a1');\n\ncreate policy \"sales_dashboard_update\" on public.sales_dashboard_state\nfor update to anon, authenticated\nusing (id = 'yuanpeng_a1')\nwith check (id = 'yuanpeng_a1');\n\ndo $$\nbegin\n  alter publication supabase_realtime add table public.sales_dashboard_state;\nexception when duplicate_object then null;\nend $$;`;
+        const body = `
+          <form id="syncForm">
+            <div class="form-grid">
+              <div class="field"><label for="supabaseUrl">Supabase Project URL</label><input id="supabaseUrl" placeholder="https://xxxx.supabase.co" value="${escapeHTML(syncConfig.url)}"></div>
+              <div class="field"><label for="supabaseKey">publishable / anon public key</label><input id="supabaseKey" placeholder="sb_publishable_... 或 eyJhbGciOi..." value="${escapeHTML(syncConfig.anonKey)}"></div>
+            </div>
+            <p class="hint">先在 Supabase SQL Editor 执行下方建表语句，再保存连接。这里填 publishable key 或 legacy anon key，不要填 secret/service_role key。</p>
+            <div class="field"><label for="setupSql">Supabase 建表 SQL</label><textarea id="setupSql" readonly>${escapeHTML(sql)}</textarea></div>
+            <div class="modal-actions">
+              <button type="button" class="btn" id="copySqlBtn">复制 SQL</button>
+              <button type="button" class="btn danger" id="clearSyncBtn">关闭云同步</button>
+              <button type="submit" class="btn primary">保存并连接</button>
+            </div>
+          </form>
+        `;
+        openModal(modalShell("云端实时同步", "Supabase 配置一次后会保存在当前浏览器", body, "wide"), bindSyncModal);
+      }
+      function bindSyncModal() {
+        $("#copySqlBtn").addEventListener("click", async () => {
+          const sql = $("#setupSql").value;
+          try {
+            await navigator.clipboard.writeText(sql);
+            toast("SQL 已复制");
+          } catch {
+            $("#setupSql").select();
+            toast("请手动复制 SQL");
+          }
+        });
+        $("#clearSyncBtn").addEventListener("click", () => {
+          disconnectSupabase();
+          saveSyncConfig({ url: "", anonKey: "" });
+          remoteReady = false;
+          closeModal();
+          renderSyncStatus("已关闭云同步");
+          toast("已切回本地模式");
+        });
+        $("#syncForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const url = $("#supabaseUrl").value.trim();
+          const anonKey = $("#supabaseKey").value.trim();
+          if (!/^https:\/\/.+\.supabase\.co\/?$/.test(url)) {
+            toast("Project URL 格式不对，应类似 https://xxxx.supabase.co");
+            $("#supabaseUrl").focus();
+            return;
+          }
+          if (!anonKey) {
+            toast("请填写 publishable / anon public key");
+            $("#supabaseKey").focus();
+            return;
+          }
+          if (anonKey.includes("PASTE_SUPABASE")) {
+            toast("请先替换内置配置里的 publishable key");
+            $("#supabaseKey").focus();
+            return;
+          }
+          if (/^(sb_secret_|eyJ).*(service_role)/i.test(anonKey) || anonKey.startsWith("sb_secret_")) {
+            toast("不要填写 secret/service_role key，请换 publishable key");
+            $("#supabaseKey").focus();
+            return;
+          }
+          saveSyncConfig({ url, anonKey });
+          closeModal();
+          await initSupabase(true);
+        });
+      }
+      function openAuthModal() {
+        if (!supabaseClient) {
+          toast("请先连接云端同步");
+          return;
+        }
+        if (currentUser) {
+          signOut();
+          return;
+        }
+        const body = `
+          <form id="authForm">
+            <div class="form-grid">
+              <div class="field"><label for="loginEmail">邮箱</label><input id="loginEmail" type="email" autocomplete="username" placeholder="name@example.com"></div>
+              <div class="field"><label for="loginPassword">密码</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="输入密码"></div>
+            </div>
+            <p class="hint">只有登录账号可以录入、删除、重置和修改目标。账号请在 Supabase 左侧 Authentication 里创建。</p>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close>取消</button>
+              <button type="submit" class="btn primary">登录</button>
+            </div>
+          </form>
+        `;
+        openModal(modalShell("登录编辑权限", "访客可查看，登录后可编辑", body, "narrow"), () => {
+          $("#authForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const email = $("#loginEmail").value.trim();
+            const password = $("#loginPassword").value;
+            if (!email || !password) {
+              toast("请输入邮箱和密码");
+              return;
+            }
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+              alert(`登录失败：\n${error.message}`);
+              return;
+            }
+            currentUser = data.user || null;
+            closeModal();
+            renderAuthState();
+            renderSyncStatus();
+            toast("已登录，可以编辑");
+          });
+        });
+      }
+      async function signOut() {
+        if (!supabaseClient) return;
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        renderAuthState();
+        renderSyncStatus();
+        toast("已退出编辑账号");
+      }
+      async function setupAuth() {
+        if (!supabaseClient) return;
+        if (authSubscription) {
+          authSubscription.unsubscribe();
+          authSubscription = null;
+        }
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) console.warn(error);
+        currentUser = data && data.session ? data.session.user : null;
+        const auth = supabaseClient.auth.onAuthStateChange((_event, session) => {
+          currentUser = session && session.user ? session.user : null;
+          renderAuthState();
+          renderSyncStatus();
+        });
+        authSubscription = auth.data.subscription;
+        renderAuthState();
+      }
+      function syncErrorText(error) {
+        return [
+          error && error.message,
+          error && error.details,
+          error && error.hint,
+          error && error.code ? `code: ${error.code}` : ""
+        ].filter(Boolean).join(" / ") || "请检查 Supabase URL、key 和 SQL 权限";
+      }
+      async function initSupabase(showToast = false) {
+        disconnectSupabase();
+        remoteReady = false;
+        renderSyncStatus("正在连接云端");
+        if (!hasSyncConfig()) { renderSyncStatus("本地模式"); return; }
+        if (!window.supabase || !window.supabase.createClient) {
+          renderSyncStatus("Supabase CDN 加载失败");
+          toast("Supabase 脚本加载失败，请检查网络或 CDN");
+          return;
+        }
+        try {
+          supabaseClient = window.supabase.createClient(syncConfig.url, syncConfig.anonKey);
+          await pullRemoteState();
+          subscribeRealtime();
+          remoteReady = true;
+          renderSyncStatus("Supabase 实时同步");
+          if (showToast) toast("云端同步已连接");
+        } catch (error) {
+          console.error(error);
+          remoteReady = false;
+          const message = syncErrorText(error);
+          renderSyncStatus("云端连接失败");
+          toast(`云同步失败：${message}`);
+          if (showToast) alert(`云同步失败：\n${message}`);
+        }
+      }
+      function disconnectSupabase() {
+        if (authSubscription) {
+          authSubscription.unsubscribe();
+          authSubscription = null;
+        }
+        if (realtimeChannel && supabaseClient) supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+        supabaseClient = null;
+        currentUser = null;
+      }
+      async function pullRemoteState() {
+        if (!supabaseClient) return;
+        const { data, error } = await supabaseClient.from(SUPABASE_TABLE).select("data").eq("id", CLOUD_ROW_ID).maybeSingle();
+        if (error) throw error;
+        if (data && data.data) {
+          applyingRemote = true;
+          state = normalizeState(data.data);
+          saveState({ remote: false });
+          applyingRemote = false;
+          renderAll();
+        } else {
+          await pushRemoteState();
+        }
+      }
+      function subscribeRealtime() {
+        if (!supabaseClient) return;
+        realtimeChannel = supabaseClient
+          .channel("sales-dashboard-state")
+          .on("postgres_changes", { event: "*", schema: "public", table: SUPABASE_TABLE, filter: `id=eq.${CLOUD_ROW_ID}` }, (payload) => {
+            if (!payload.new || !payload.new.data) return;
+            applyingRemote = true;
+            state = normalizeState(payload.new.data);
+            saveState({ remote: false });
+            applyingRemote = false;
+            renderAll();
+            toast("云端数据已更新");
+          })
+          .subscribe((status) => {
+            if (status === "SUBSCRIBED") {
+              remoteReady = true;
+              renderSyncStatus("Supabase 实时同步");
+            }
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+              remoteReady = false;
+              renderSyncStatus("实时连接中断");
+            }
+          });
+      }
+      function queueRemoteSave() {
+        if (!supabaseClient || !hasSyncConfig()) return;
+        clearTimeout(remoteSaveTimer);
+        remoteSaveTimer = setTimeout(() => pushRemoteState(), 220);
+      }
+      async function pushRemoteState() {
+        if (!supabaseClient) return;
+        renderSyncStatus("正在保存云端");
+        let mergedState = state;
+        const latest = await supabaseClient.from(SUPABASE_TABLE).select("data").eq("id", CLOUD_ROW_ID).maybeSingle();
+        if (latest.error) {
+          remoteReady = false;
+          renderSyncStatus("保存前同步失败");
+          toast(`保存前同步失败：${syncErrorText(latest.error)}`);
+          return;
+        }
+        if (latest.data && latest.data.data) {
+          mergedState = mergeStates(latest.data.data, state);
+          state = mergedState;
+          persistLocalState();
+          renderAll();
+        }
+        const { error } = await supabaseClient.from(SUPABASE_TABLE).upsert({
+          id: CLOUD_ROW_ID,
+          data: mergedState,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "id" });
+        if (error) {
+          remoteReady = false;
+          renderSyncStatus("保存失败");
+          const message = syncErrorText(error);
+          toast(`云端保存失败：${message}`);
+          if (message.includes("row-level security") || message.includes("permission") || message.includes("JWT")) {
+            openAuthModal();
+          }
+          return;
+        }
+        remoteReady = true;
+        renderSyncStatus("Supabase 实时同步");
+      }
+
+      function toast(message) {
+        const node = document.createElement("div");
+        node.className = "toast";
+        node.textContent = message;
+        $("#toastStack").appendChild(node);
+        setTimeout(() => {
+          node.style.opacity = "0";
+          node.style.transform = "translateY(8px)";
+          setTimeout(() => node.remove(), 220);
+        }, 2200);
+      }
+
+      function bindEvents() {
+        $$(".seg [data-sort]").forEach((button) => button.addEventListener("click", () => {
+          sortMode = button.dataset.sort;
+          $$(".seg [data-sort]").forEach((btn) => btn.classList.toggle("active", btn === button));
+          renderRanking();
+        }));
+        $("#syncBtn").addEventListener("click", openSyncModal);
+        $("#goalsBtn").addEventListener("click", openGoalsModal);
+        $("#metricsBtn").addEventListener("click", () => openMetricsModal());
+        $("#resetBtn").addEventListener("click", resetCurrentMonth);
+        $("#ranking").addEventListener("click", (event) => {
+          const action = event.target.closest("[data-action]");
+          if (action) {
+            const personId = action.dataset.person;
+            if (action.dataset.action === "details") openMonthlyDetail(personId);
+            if (action.dataset.action === "tx") openTransactionModal(personId);
+            if (action.dataset.action === "metrics") openMetricsModal(personId);
+            return;
+          }
+          const cell = event.target.closest(".money-cell");
+          if (cell) openTransactionModal(cell.dataset.person);
+        });
+        $("#modalLayer").addEventListener("mousedown", (event) => { if (event.target.id === "modalLayer") closeModal(); });
+        document.addEventListener("keydown", (event) => { if (event.key === "Escape" && $("#modalLayer").classList.contains("open")) closeModal(); });
+      }
+
+      bindEvents();
+      renderAll();
+      initSupabase(false);
+      setInterval(renderDate, 60000);
+    })();
+  </script>
+</body>
+</html>
