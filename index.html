@@ -230,6 +230,29 @@
     .quick-line span { color: var(--muted); font-size: 12px; }
     .bar { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(216,197,163,.13); }
     .bar i { display: block; width: var(--w, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green), var(--gold)); transition: width .7s cubic-bezier(.19, 1, .22, 1); }
+    .follow-panel { padding: 22px; margin-bottom: 20px; overflow: hidden; }
+    .follow-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 14px; align-items: stretch; }
+    .follow-stats { display: grid; gap: 10px; }
+    .follow-stat { padding: 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.34); box-shadow: var(--inner-glow); }
+    .follow-stat strong { display: block; margin-top: 6px; color: #f8f0df; font-family: "JetBrains Mono", monospace; font-size: 22px; }
+    .follow-list { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 12px; }
+    .follow-card { position: relative; min-height: 168px; padding: 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: linear-gradient(180deg, rgba(21,26,33,.76), rgba(7,9,13,.72)); box-shadow: var(--inner-glow); overflow: hidden; animation: slideIn .36s cubic-bezier(.19, 1, .22, 1) both; transition: transform .35s cubic-bezier(.19, 1, .22, 1), border-color .35s ease, background .35s ease; }
+    .follow-card::before { position: absolute; inset: auto -20% -46px -20%; height: 86px; content: ""; border-radius: 50% 50% 0 0; background: linear-gradient(180deg, rgba(201,166,70,.16), transparent); pointer-events: none; }
+    .follow-card.overdue { border-color: rgba(177,91,100,.32); }
+    .follow-card.reminded { border-color: rgba(111,154,184,.34); }
+    .follow-card:hover { transform: translateY(-4px); border-color: rgba(201,166,70,.34); background: linear-gradient(180deg, rgba(25,30,37,.82), rgba(9,12,16,.78)); }
+    .follow-top, .follow-money, .follow-actions { position: relative; z-index: 1; }
+    .follow-top { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .follow-name { display: flex; flex-direction: column; gap: 3px; }
+    .follow-name strong { color: var(--text); font-size: 16px; }
+    .follow-name span, .follow-date { color: var(--muted); font-size: 12px; }
+    .follow-status { align-self: flex-start; padding: 4px 8px; border: 1px solid rgba(201,166,70,.26); border-radius: 999px; color: #ead59a; background: rgba(201,166,70,.1); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .follow-status.reminded { border-color: rgba(111,154,184,.34); color: #c8d6dc; background: rgba(111,154,184,.12); }
+    .follow-money { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .follow-money span { display: block; color: var(--muted); font-size: 11px; }
+    .follow-money strong { display: block; margin-top: 4px; font-family: "JetBrains Mono", monospace; font-size: 14px; }
+    .follow-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .follow-actions .btn { min-height: 32px; padding: 6px 9px; font-size: 12px; }
     .modal-layer { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(5,7,10,.76); backdrop-filter: blur(18px) saturate(.92); }
     .modal-layer.open { display: flex; }
     .modal { width: min(980px, 100%); max-height: min(88vh, 920px); overflow: hidden; border: 1px solid rgba(201,166,70,.24); border-radius: var(--radius); background: linear-gradient(180deg, rgba(25,29,36,.98), rgba(9,12,16,.98)); box-shadow: 0 34px 110px rgba(0,0,0,.58), var(--inner-glow); animation: modalIn .34s cubic-bezier(.19, 1, .22, 1) forwards; }
@@ -289,9 +312,9 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
-    @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px; } }
-    @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } }
+    @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-layout { grid-template-columns: 1fr; } .follow-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-list { grid-template-columns: repeat(2, minmax(220px, 1fr)); } }
+    @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px; } }
+    @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -331,7 +354,18 @@
         </div>
       </section>
 
-      <section class="panel table-panel fade" style="--delay:.32s">
+      <section class="panel follow-panel fade" style="--delay:.32s">
+        <div class="section-title">
+          <h2>🧾 待收尾款订单池</h2>
+          <span id="followSummary"></span>
+        </div>
+        <div class="follow-layout">
+          <div class="follow-stats" id="followStats"></div>
+          <div class="follow-list" id="followPool"></div>
+        </div>
+      </section>
+
+      <section class="panel table-panel fade" style="--delay:.4s">
         <div class="scroll">
           <table>
             <thead>
@@ -360,7 +394,7 @@
         </div>
       </section>
 
-      <section class="charts fade" style="--delay:.4s">
+      <section class="charts fade" style="--delay:.48s">
         <div class="panel chart-panel">
           <div class="section-title">
             <h2>📈 月度团队业绩走势图</h2>
@@ -504,7 +538,11 @@
           const type = tx && typeMeta[tx.type] ? tx.type : "";
           if (!amount || !type) return;
           const normalizedTx = { id: tx.id || txId(), amount, type, createdAt: tx.createdAt || new Date().toISOString() };
-          if (type === "deposit") normalizedTx.orderAmount = safeNumber(tx.orderAmount) || safeNumber(tx.dealAmount) || amount;
+          if (type === "deposit") {
+            normalizedTx.orderAmount = safeNumber(tx.orderAmount) || safeNumber(tx.dealAmount) || amount;
+            normalizedTx.followStatus = ["pending", "reminded", "closed", "lost"].includes(tx.followStatus) ? tx.followStatus : "pending";
+            normalizedTx.followUpdatedAt = tx.followUpdatedAt || tx.createdAt || normalizedTx.createdAt;
+          }
           normalized.transactions.push(normalizedTx);
         });
         if (!normalized.transactions.length) {
@@ -513,7 +551,11 @@
             if (!amount) return;
             const legacyTx = { id: txId(), amount, type };
             legacyTx.createdAt = new Date().toISOString();
-            if (type === "deposit") legacyTx.orderAmount = safeNumber(entry.depositOrderAmount) || amount;
+            if (type === "deposit") {
+              legacyTx.orderAmount = safeNumber(entry.depositOrderAmount) || amount;
+              legacyTx.followStatus = "pending";
+              legacyTx.followUpdatedAt = legacyTx.createdAt;
+            }
             normalized.transactions.push(legacyTx);
           });
         }
@@ -667,7 +709,7 @@
         [...(a.transactions || []), ...(b.transactions || [])].forEach((tx) => {
           if (deletedTx[tx.id]) return;
           const existing = txMap.get(tx.id);
-          if (!existing || newerTime(tx.createdAt, existing.createdAt)) txMap.set(tx.id, { ...tx });
+          if (!existing || newerTime(tx.followUpdatedAt || tx.createdAt, existing.followUpdatedAt || existing.createdAt)) txMap.set(tx.id, { ...tx });
         });
         return recalcEntry({
           date: a.date,
@@ -740,6 +782,7 @@
         renderPodium();
         renderRanking();
         renderChart();
+        renderFollowPool();
         renderQuickList();
         renderSyncStatus();
         if (flashPersonId) {
@@ -870,6 +913,108 @@
           point.addEventListener("mouseleave", () => tip.classList.remove("show"));
         });
       }
+
+      function daysBetween(start, end = dateKey()) {
+        const diff = parseDate(end).getTime() - parseDate(start).getTime();
+        return Math.max(Math.floor(diff / 86400000), 0);
+      }
+      function followStatusMeta(status) {
+        const map = {
+          pending: { label: "待跟进", className: "" },
+          reminded: { label: "已提醒", className: "reminded" },
+          closed: { label: "已收齐", className: "closed" },
+          lost: { label: "已流失", className: "lost" }
+        };
+        return map[status] || map.pending;
+      }
+      function pendingDepositOrders() {
+        const orders = [];
+        people.forEach((person) => {
+          (state.entries[person.id] || []).forEach((entry) => {
+            (entry.transactions || []).forEach((tx) => {
+              if (tx.type !== "deposit") return;
+              const amount = safeNumber(tx.amount);
+              const orderAmount = safeNumber(tx.orderAmount) || amount;
+              const pendingAmount = Math.max(orderAmount - amount, 0);
+              const status = tx.followStatus || "pending";
+              if (!pendingAmount || status === "closed" || status === "lost") return;
+              orders.push({ person, entry, tx, amount, orderAmount, pendingAmount, status, days: daysBetween(entry.date) });
+            });
+          });
+        });
+        return orders.sort((a, b) => {
+          const statusWeight = (item) => item.status === "pending" ? 1 : 0;
+          return statusWeight(b) - statusWeight(a) || b.days - a.days || b.pendingAmount - a.pendingAmount;
+        });
+      }
+      function renderFollowPool() {
+        const orders = pendingDepositOrders();
+        const pendingTotal = orders.reduce((sum, item) => sum + item.pendingAmount, 0);
+        const orderTotal = orders.reduce((sum, item) => sum + item.orderAmount, 0);
+        const overdueCount = orders.filter((item) => item.days >= 3 && item.status !== "reminded").length;
+        const remindedCount = orders.filter((item) => item.status === "reminded").length;
+        $("#followSummary").textContent = orders.length ? `${orders.length} 笔待跟进 · ${money(pendingTotal)} 待收` : "暂无待收尾款";
+        $("#followStats").innerHTML = [
+          followStat("待收尾款", money(pendingTotal), "定金订单剩余未收"),
+          followStat("订单总额", money(orderTotal), `${orders.length} 笔定金订单`),
+          followStat("超 3 天", `${overdueCount} 笔`, `已提醒 ${remindedCount} 笔`)
+        ].join("");
+        $("#followPool").innerHTML = orders.length ? orders.slice(0, 12).map(followCard).join("") : `<div class="empty" style="grid-column:1/-1;">目前没有待收尾款订单。定金订单标记“已收齐”或“流失”后，会自动从这里移除。</div>`;
+        bindFollowPool();
+      }
+      function followStat(label, value, sub) {
+        return `<div class="follow-stat"><span class="summary-label">${label}</span><strong>${value}</strong><p class="summary-small">${sub}</p></div>`;
+      }
+      function followCard(item) {
+        const meta = followStatusMeta(item.status);
+        const overdue = item.days >= 3 && item.status !== "reminded";
+        return `
+          <article class="follow-card ${overdue ? "overdue" : ""} ${meta.className}" data-tx="${item.tx.id}">
+            <div class="follow-top">
+              <div class="follow-name"><strong>${escapeHTML(item.person.name)}</strong><span>${escapeHTML(item.person.account)} · ${item.entry.date}</span></div>
+              <span class="follow-status ${meta.className}">${overdue ? "需跟进" : meta.label}</span>
+            </div>
+            <div class="follow-money">
+              <div><span>订单</span><strong class="money gold">${money(item.orderAmount)}</strong></div>
+              <div><span>定金</span><strong class="money blue">${money(item.amount)}</strong></div>
+              <div><span>待收</span><strong class="money red">${money(item.pendingAmount)}</strong></div>
+            </div>
+            <p class="summary-small">已等待 ${item.days} 天${item.status === "reminded" ? " · 已提醒客户" : ""}</p>
+            <div class="follow-actions">
+              <button type="button" class="btn" data-follow-open="${item.person.id}" data-date="${item.entry.date}">查看明细</button>
+              <button type="button" class="btn cloud" data-follow-status="reminded" data-tx="${item.tx.id}">${item.status === "reminded" ? "再次提醒" : "已提醒"}</button>
+              <button type="button" class="btn primary" data-follow-status="closed" data-tx="${item.tx.id}">已收齐</button>
+              <button type="button" class="btn danger" data-follow-status="lost" data-tx="${item.tx.id}">流失</button>
+            </div>
+          </article>
+        `;
+      }
+      function bindFollowPool() {
+        $$("[data-follow-open]").forEach((button) => button.addEventListener("click", () => openTransactionModal(button.dataset.followOpen, button.dataset.date)));
+        $$("[data-follow-status]").forEach((button) => button.addEventListener("click", () => updateDepositFollowStatus(button.dataset.tx, button.dataset.followStatus)));
+      }
+      function updateDepositFollowStatus(txIdValue, status) {
+        if (!requireEdit()) return;
+        let changed = null;
+        people.some((person) => (state.entries[person.id] || []).some((entry) => {
+          const tx = (entry.transactions || []).find((item) => item.id === txIdValue);
+          if (!tx) return false;
+          if (status === "closed" && !confirm("确认这笔定金订单已经收齐尾款？")) return true;
+          if (status === "lost" && !confirm("确认将这笔定金订单标记为流失？")) return true;
+          tx.followStatus = status;
+          tx.followUpdatedAt = nowIso();
+          recalcEntry(entry);
+          markEntryUpdated(person.id, entry.date);
+          changed = { person, entry, tx };
+          return true;
+        }));
+        if (!changed) return;
+        saveState();
+        pushRemoteState();
+        renderAll(changed.person.id);
+        toast(`尾款跟进状态已更新：${followStatusMeta(status).label}`);
+      }
+
       function renderQuickList() {
         const list = people.map((person) => ({ person, metrics: dayMetrics(person.id) })).sort((a, b) => b.metrics.total - a.metrics.total || b.metrics.transactionCount - a.metrics.transactionCount);
         const max = Math.max(...list.map((item) => item.metrics.total), 1);
@@ -933,7 +1078,7 @@
       function txAmountPlaceholder() { return txModal.type === "deposit" ? "输入实际收到的定金，如 400" : txModal.type === "final" ? "输入尾款到账金额，不计入业绩" : "输入全款金额，回车提交"; }
       function txText(tx) {
         const amount = safeNumber(tx.amount);
-        if (tx.type === "deposit") return `定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)}`;
+        if (tx.type === "deposit") return `定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)} · ${followStatusMeta(tx.followStatus).label}`;
         if (tx.type === "final") return `${money(amount)} · 不计入业绩`;
         return money(amount);
       }
@@ -975,7 +1120,11 @@
         const entry = ensureEntry(txModal.personId, txModal.date);
         const tx = { id: txId(), amount, type: txModal.type };
         tx.createdAt = nowIso();
-        if (txModal.type === "deposit") tx.orderAmount = orderAmount;
+        if (txModal.type === "deposit") {
+          tx.orderAmount = orderAmount;
+          tx.followStatus = "pending";
+          tx.followUpdatedAt = tx.createdAt;
+        }
         entry.transactions.push(tx);
         recalcEntry(entry);
         markEntryUpdated(txModal.personId, txModal.date);
