@@ -283,7 +283,7 @@
     .summary-value { margin: 0; font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 900; word-break: break-word; }
     .summary-small { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
     .tx-entry { display: grid; grid-template-columns: minmax(150px, 1fr) auto auto; gap: 10px; align-items: end; margin-bottom: 16px; padding: 14px; border: 1px solid rgba(219,198,154,.13); border-radius: var(--radius); background: rgba(7,9,13,.32); }
-    .tx-entry.deposit-mode { grid-template-columns: minmax(150px, 1fr) minmax(170px, 1fr) auto auto; }
+    .tx-entry.deposit-mode { grid-template-columns: minmax(140px, 1fr) minmax(130px, .9fr) minmax(170px, 1fr) auto auto; }
     .type-toggle { display: inline-flex; gap: 6px; padding: 4px; border: 1px solid rgba(219,198,154,.16); border-radius: var(--radius); background: rgba(7,9,13,.46); }
     .type-btn { padding: 8px 12px; color: var(--muted); font-weight: 900; white-space: nowrap; }
     .type-btn.active[data-type="full"] { color: #10131f; background: var(--gold); }
@@ -348,13 +348,14 @@
         </div>
         <div class="actions">
           <button type="button" class="btn cloud" id="syncBtn">☁️ 云端同步</button>
+          <button type="button" class="btn" id="followBtn">🧾 待收尾款</button>
           <button type="button" class="btn" id="goalsBtn">⚙️ 设置月度目标</button>
           <button type="button" class="btn primary" id="metricsBtn">+ 录入数据指标</button>
           <button type="button" class="btn danger" id="resetBtn">↻ 月度重置</button>
         </div>
       </section>
 
-      <section class="panel follow-panel fade" style="--delay:.32s">
+      <section class="panel follow-panel fade" id="followPanel" style="--delay:.32s">
         <div class="section-title">
           <h2>🧾 待收尾款订单池</h2>
           <span id="followSummary"></span>
@@ -540,6 +541,7 @@
           const normalizedTx = { id: tx.id || txId(), amount, type, createdAt: tx.createdAt || new Date().toISOString() };
           if (type === "deposit") {
             normalizedTx.orderAmount = safeNumber(tx.orderAmount) || safeNumber(tx.dealAmount) || amount;
+            normalizedTx.customerName = String(tx.customerName || tx.customer || "").trim();
             normalizedTx.followStatus = ["pending", "reminded", "closed", "lost"].includes(tx.followStatus) ? tx.followStatus : "pending";
             normalizedTx.followUpdatedAt = tx.followUpdatedAt || tx.createdAt || normalizedTx.createdAt;
           }
@@ -553,6 +555,7 @@
             legacyTx.createdAt = new Date().toISOString();
             if (type === "deposit") {
               legacyTx.orderAmount = safeNumber(entry.depositOrderAmount) || amount;
+              legacyTx.customerName = "";
               legacyTx.followStatus = "pending";
               legacyTx.followUpdatedAt = legacyTx.createdAt;
             }
@@ -968,10 +971,11 @@
       function followCard(item) {
         const meta = followStatusMeta(item.status);
         const overdue = item.days >= 3 && item.status !== "reminded";
+        const customerName = item.tx.customerName ? escapeHTML(item.tx.customerName) : "未填写客户";
         return `
           <article class="follow-card ${overdue ? "overdue" : ""} ${meta.className}" data-tx="${item.tx.id}">
             <div class="follow-top">
-              <div class="follow-name"><strong>${escapeHTML(item.person.name)}</strong><span>${escapeHTML(item.person.account)} · ${item.entry.date}</span></div>
+              <div class="follow-name"><strong>${customerName}</strong><span>${escapeHTML(item.person.name)} · ${escapeHTML(item.person.account)} · ${item.entry.date}</span></div>
               <span class="follow-status ${meta.className}">${overdue ? "需跟进" : meta.label}</span>
             </div>
             <div class="follow-money">
@@ -1061,6 +1065,7 @@
           </div>
           <form class="tx-entry ${txModal.type === "deposit" ? "deposit-mode" : ""}" id="txForm">
             <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
+            <div class="field" id="txCustomerField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txCustomerName">客户姓名</label><input type="text" id="txCustomerName" maxlength="24" placeholder="例：张先生 / 王女士" autocomplete="off"></div>
             <div class="field" id="txOrderField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txOrderAmount">订单金额（计入实际成交）</label><input type="number" id="txOrderAmount" inputmode="decimal" min="0" step="0.01" placeholder="例：订单2400，定金400，这里填2400"></div>
             <div><label class="summary-label" style="display:block;margin-bottom:7px;">类型</label><div class="type-toggle" id="typeToggle">${typeButton("full")}${typeButton("deposit")}${typeButton("final")}</div></div>
             <button type="submit" class="btn primary">+ 新增</button>
@@ -1078,7 +1083,10 @@
       function txAmountPlaceholder() { return txModal.type === "deposit" ? "输入实际收到的定金，如 400" : txModal.type === "final" ? "输入尾款到账金额，不计入业绩" : "输入全款金额，回车提交"; }
       function txText(tx) {
         const amount = safeNumber(tx.amount);
-        if (tx.type === "deposit") return `定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)} · ${followStatusMeta(tx.followStatus).label}`;
+        if (tx.type === "deposit") {
+          const customerName = tx.customerName ? `${escapeHTML(tx.customerName)} · ` : "";
+          return `${customerName}定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)} · ${followStatusMeta(tx.followStatus).label}`;
+        }
         if (tx.type === "final") return `${money(amount)} · 不计入业绩`;
         return money(amount);
       }
@@ -1104,6 +1112,7 @@
         const isDeposit = txModal.type === "deposit";
         $("#txForm").classList.toggle("deposit-mode", isDeposit);
         $("#txOrderField").style.display = isDeposit ? "" : "none";
+        $("#txCustomerField").style.display = isDeposit ? "" : "none";
         $("#txAmountLabel").textContent = txAmountLabel();
         $("#txAmount").placeholder = txAmountPlaceholder();
       }
@@ -1112,7 +1121,9 @@
         const amount = safeNumber($("#txAmount").value);
         if (!amount) { toast("请输入有效收款金额"); $("#txAmount").focus(); return; }
         let orderAmount = 0;
+        let customerName = "";
         if (txModal.type === "deposit") {
+          customerName = $("#txCustomerName").value.trim();
           orderAmount = safeNumber($("#txOrderAmount").value);
           if (!orderAmount) { toast("请输入这笔定金对应的订单金额"); $("#txOrderAmount").focus(); return; }
           if (orderAmount < amount) { toast("订单金额不能小于定金到账金额"); $("#txOrderAmount").focus(); return; }
@@ -1122,6 +1133,7 @@
         tx.createdAt = nowIso();
         if (txModal.type === "deposit") {
           tx.orderAmount = orderAmount;
+          tx.customerName = customerName;
           tx.followStatus = "pending";
           tx.followUpdatedAt = tx.createdAt;
         }
@@ -1593,6 +1605,7 @@
           renderRanking();
         }));
         $("#syncBtn").addEventListener("click", openSyncModal);
+        $("#followBtn").addEventListener("click", () => $("#followPanel").scrollIntoView({ behavior: "smooth", block: "start" }));
         $("#goalsBtn").addEventListener("click", openGoalsModal);
         $("#metricsBtn").addEventListener("click", () => openMetricsModal());
         $("#resetBtn").addEventListener("click", resetCurrentMonth);
