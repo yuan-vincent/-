@@ -287,6 +287,20 @@
     .order-ledger-row strong { font-family: "JetBrains Mono", monospace; }
     .order-note { min-height: 96px !important; font-family: "Noto Sans SC", system-ui, sans-serif !important; }
     .tx-entry.final-mode { grid-template-columns: minmax(120px, .72fr) minmax(220px, 1.15fr) minmax(160px, .8fr) auto auto; }
+    .order-picker { min-width: 0; }
+    .order-picker-input { font-family: "Noto Sans SC", system-ui, sans-serif !important; }
+    .order-picker-selection { display: flex; align-items: center; min-height: 28px; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .order-picker-selection strong { color: #ead59a; }
+    .order-picker-results { display: grid; gap: 6px; max-height: 238px; margin-top: 8px; padding: 6px; overflow: auto; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.44); scrollbar-color: rgba(201,166,70,.46) transparent; }
+    .order-picker-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; padding: 9px 10px; border: 1px solid transparent; border-radius: calc(var(--radius) - 2px); color: var(--text); text-align: left; background: transparent; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+    .order-picker-option:hover { transform: translateY(-1px); border-color: rgba(201,166,70,.28); background: rgba(201,166,70,.08); }
+    .order-picker-option.selected { border-color: rgba(201,166,70,.46); background: rgba(201,166,70,.13); }
+    .order-picker-option.none { color: var(--muted); }
+    .order-picker-name { display: block; overflow: hidden; color: var(--text); font-size: 13px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+    .order-picker-meta, .order-picker-date { display: block; margin-top: 3px; color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+    .order-picker-amount { color: #ead59a; font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .order-picker-empty { padding: 12px 10px; color: var(--muted); font-size: 12px; text-align: center; }
+    .order-picker-hint { margin: 7px 1px 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
     .tx-item { grid-template-columns: 60px 100px minmax(120px, 1fr) minmax(90px, auto) 42px 42px 42px; }
     .reconcile-layout { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
     .reconcile-result { padding: 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.3); }
@@ -2113,11 +2127,12 @@
         const entry = getEntry(txModal.personId, txModal.date);
         const tx = entry && (entry.transactions || []).find((item) => item.id === txIdValue);
         if (!tx || tx.type !== "final") return;
-        const body = `<form id="linkFinalForm"><div class="field"><label for="linkFinalOrder">关联订单</label><select id="linkFinalOrder">${finalOrderOptions(txModal.personId, tx.orderId || "")}</select></div><p class="hint">选择订单后，这笔尾款会自动计入该订单已收金额；保留为空则仅作为独立尾款记录。</p><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存关联</button></div></form>`;
+        const body = `<form id="linkFinalForm"><div class="field"><label for="linkOrderSearch">关联订单</label>${orderPickerMarkup("link", txModal.personId, tx.orderId || "")}</div><p class="hint">选择订单后，这笔尾款会自动计入该订单已收金额；保留为“不关联订单”则仅作为独立尾款记录。</p><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存关联</button></div></form>`;
         openModal(modalShell("关联尾款订单", `${money(tx.amount)} · ${txModal.date}`, body, "narrow"), () => {
+          bindOrderPicker("link", txModal.personId);
           $("#linkFinalForm").addEventListener("submit", (event) => {
             event.preventDefault();
-            const nextOrderId = $("#linkFinalOrder").value || "";
+            const nextOrderId = $("#linkOrderId").value || "";
             if (nextOrderId) {
               const order = orderById(nextOrderId);
               if (!order || order.personId !== txModal.personId) { toast("关联订单无效"); return; }
@@ -2161,7 +2176,7 @@
             <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
             <div class="field" id="txCustomerField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txCustomerName">客户姓名</label><input type="text" id="txCustomerName" maxlength="24" placeholder="例：张先生 / 王女士" autocomplete="off"></div>
             <div class="field" id="txOrderField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txOrderAmount">订单金额（计入实际成交）</label><input type="number" id="txOrderAmount" inputmode="decimal" min="0" step="0.01" placeholder="例：订单2400，定金400，这里填2400"></div>
-            <div class="field" id="txLinkOrderField" style="${txModal.type === "final" ? "" : "display:none;"}"><label for="txOrderId">关联订单（尾款归属）</label><select id="txOrderId">${finalOrderOptions(person.id, txModal.orderId)}</select></div>
+            <div class="field" id="txLinkOrderField" style="${txModal.type === "final" ? "" : "display:none;"}"><label for="txOrderSearch">关联订单（尾款归属）</label>${orderPickerMarkup("tx", person.id, txModal.orderId)}</div>
             <div class="field"><label for="txLakalaLogNo">拉卡拉流水号（可选）</label><input type="text" id="txLakalaLogNo" maxlength="64" placeholder="log_no / 对账单流水号" autocomplete="off"></div>
             <div><label class="summary-label" style="display:block;margin-bottom:7px;">类型</label><div class="type-toggle" id="typeToggle">${typeButton("full")}${typeButton("deposit")}${typeButton("final")}</div></div>
             <button type="submit" class="btn primary">+ 新增</button>
@@ -2174,17 +2189,72 @@
         const meta = typeMeta[type];
         return `<div class="summary-card ${meta.className}"><p class="summary-label">${meta.label}</p><p class="summary-value">${money(amount)}</p><p class="summary-small">${count} 笔${extra ? ` · ${extra}` : ""}</p></div>`;
       }
-      function finalOrderOptions(personId, selectedOrderId = "") {
+      function searchableOrderRecords(personId, selectedOrderId = "", query = "") {
+        const normalizedQuery = String(query || "").trim().toLocaleLowerCase("zh-CN");
         const allOrders = orderRecords(personId);
-        const orders = allOrders.filter((item) => item.pendingAmount > 0 && item.status !== "lost");
-        const selected = selectedOrderId ? allOrders.find((item) => item.order.id === selectedOrderId) : null;
-        if (selected && !orders.some((item) => item.order.id === selected.order.id)) orders.push(selected);
-        const options = [`<option value="">不关联订单（仅记录尾款）</option>`];
-        orders.forEach((item) => {
-          const label = `${item.order.customerName || "未命名客户"} · 待收 ${money(item.pendingAmount)} · ${item.order.depositDate}`;
-          options.push(`<option value="${escapeHTML(item.order.id)}" ${item.order.id === selectedOrderId ? "selected" : ""}>${escapeHTML(label)}</option>`);
+        const candidates = allOrders.filter((item) => (item.pendingAmount > 0 && item.status !== "lost") || item.order.id === selectedOrderId);
+        const searchable = (item) => [
+          item.order.customerName || "未命名客户",
+          item.order.depositDate,
+          safeNumber(item.orderAmount),
+          safeNumber(item.pendingAmount),
+          safeNumber(item.depositAmount),
+          money(item.orderAmount),
+          money(item.pendingAmount)
+        ].join(" ").toLocaleLowerCase("zh-CN");
+        return candidates.filter((item) => !normalizedQuery || searchable(item).includes(normalizedQuery)).sort((left, right) => {
+          const leftName = String(left.order.customerName || "未命名客户").toLocaleLowerCase("zh-CN");
+          const rightName = String(right.order.customerName || "未命名客户").toLocaleLowerCase("zh-CN");
+          const leftStarts = normalizedQuery && leftName.startsWith(normalizedQuery) ? 1 : 0;
+          const rightStarts = normalizedQuery && rightName.startsWith(normalizedQuery) ? 1 : 0;
+          if (leftStarts !== rightStarts) return rightStarts - leftStarts;
+          if (right.pendingAmount !== left.pendingAmount) return right.pendingAmount - left.pendingAmount;
+          return String(right.order.depositDate || "").localeCompare(String(left.order.depositDate || ""));
         });
-        return options.join("");
+      }
+      function orderPickerSelectionMarkup(personId, selectedOrderId = "") {
+        const selected = selectedOrderId ? orderRecords(personId).find((item) => item.order.id === selectedOrderId) : null;
+        if (!selected) return `当前：<span>不关联订单，仅记录这笔尾款</span>`;
+        return `已选：<strong>${escapeHTML(selected.order.customerName || "未命名客户")}</strong><span> · 待收 ${money(selected.pendingAmount)} · ${escapeHTML(selected.order.depositDate)}</span>`;
+      }
+      function orderPickerResultsMarkup(key, personId, selectedOrderId = "", query = "") {
+        const records = searchableOrderRecords(personId, selectedOrderId, query);
+        const visibleRecords = records.slice(0, 12);
+        const noneOption = `<button type="button" class="order-picker-option none ${selectedOrderId ? "" : "selected"}" data-order-picker-value=""><span><span class="order-picker-name">不关联订单</span><span class="order-picker-meta">仅记录这笔尾款，不归入任何订单</span></span><span class="order-picker-amount">独立尾款</span></button>`;
+        const options = visibleRecords.map((item) => {
+          const order = item.order;
+          return `<button type="button" class="order-picker-option ${order.id === selectedOrderId ? "selected" : ""}" data-order-picker-value="${escapeHTML(order.id)}"><span><span class="order-picker-name">${escapeHTML(order.customerName || "未命名客户")}</span><span class="order-picker-meta">订单 ${money(item.orderAmount)} · 定金 ${money(item.depositAmount)}</span><span class="order-picker-date">${escapeHTML(order.depositDate)} · ${escapeHTML(getPerson(order.personId)?.name || "")}</span></span><span class="order-picker-amount">待收 ${money(item.pendingAmount)}</span></button>`;
+        }).join("");
+        const empty = records.length ? "" : `<div class="order-picker-empty">没有匹配订单，请换一个客户名、金额或日期试试。</div>`;
+        const more = records.length > visibleRecords.length ? `<div class="order-picker-empty">匹配到 ${records.length} 笔，先显示前 ${visibleRecords.length} 笔；继续输入可缩小范围。</div>` : "";
+        return `${noneOption}${options}${empty}${more}`;
+      }
+      function orderPickerMarkup(key, personId, selectedOrderId = "") {
+        return `<div class="order-picker" data-order-picker="${escapeHTML(key)}"><input type="hidden" id="${escapeHTML(key)}OrderId" value="${escapeHTML(selectedOrderId)}"><input class="order-picker-input" type="search" id="${escapeHTML(key)}OrderSearch" placeholder="搜索客户姓名、金额、待收或定金日期" autocomplete="off" spellcheck="false"><div class="order-picker-selection" id="${escapeHTML(key)}OrderSelection">${orderPickerSelectionMarkup(personId, selectedOrderId)}</div><div class="order-picker-results" id="${escapeHTML(key)}OrderResults">${orderPickerResultsMarkup(key, personId, selectedOrderId)}</div><p class="order-picker-hint">输入客户姓名、订单金额、待收金额或定金日期，即可快速筛选。</p></div>`;
+      }
+      function bindOrderPicker(key, personId, onChange = null) {
+        const selectedInput = document.getElementById(`${key}OrderId`);
+        const searchInput = document.getElementById(`${key}OrderSearch`);
+        const results = document.getElementById(`${key}OrderResults`);
+        const selection = document.getElementById(`${key}OrderSelection`);
+        if (!selectedInput || !searchInput || !results || !selection) return;
+        const refresh = () => {
+          const selectedOrderId = selectedInput.value || "";
+          results.innerHTML = orderPickerResultsMarkup(key, personId, selectedOrderId, searchInput.value);
+          selection.innerHTML = orderPickerSelectionMarkup(personId, selectedOrderId);
+        };
+        searchInput.addEventListener("input", refresh);
+        searchInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") event.preventDefault();
+        });
+        results.addEventListener("click", (event) => {
+          const choice = event.target.closest("[data-order-picker-value]");
+          if (!choice) return;
+          selectedInput.value = choice.dataset.orderPickerValue || "";
+          searchInput.value = "";
+          if (onChange) onChange(selectedInput.value);
+          refresh();
+        });
       }
       function typeButton(type) { return `<button type="button" class="type-btn ${txModal.type === type ? "active" : ""}" data-type="${type}">${typeMeta[type].label}</button>`; }
       function txAmountLabel() { return txModal.type === "deposit" ? "定金到账" : txModal.type === "final" ? "尾款到账" : "全款金额"; }
@@ -2227,6 +2297,7 @@
         $$("[data-link-final]").forEach((button) => button.addEventListener("click", () => openLinkFinalModal(button.dataset.linkFinal)));
         $$("[data-lakala-tx]").forEach((button) => button.addEventListener("click", () => editTransactionLakala(button.dataset.lakalaTx)));
         $$("[data-delete-tx]").forEach((button) => button.addEventListener("click", () => deleteTransaction(button.dataset.deleteTx)));
+        if (txModal.type === "final") bindOrderPicker("tx", txModal.personId, (orderIdValue) => { txModal.orderId = orderIdValue; });
         if (focus) amountInput.focus();
       }
       function syncTxFields() {
@@ -2237,7 +2308,10 @@
         $("#txOrderField").style.display = isDeposit ? "" : "none";
         $("#txCustomerField").style.display = isDeposit ? "" : "none";
         $("#txLinkOrderField").style.display = isFinal ? "" : "none";
-        if (isFinal) $("#txOrderId").innerHTML = finalOrderOptions(txModal.personId, txModal.orderId);
+        if (isFinal) {
+          $("#txLinkOrderField").innerHTML = `<label for="txOrderSearch">关联订单（尾款归属）</label>${orderPickerMarkup("tx", txModal.personId, txModal.orderId)}`;
+          bindOrderPicker("tx", txModal.personId, (orderIdValue) => { txModal.orderId = orderIdValue; });
+        }
         $("#txAmountLabel").textContent = txAmountLabel();
         $("#txAmount").placeholder = txAmountPlaceholder();
       }
