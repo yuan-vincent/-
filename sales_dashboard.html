@@ -269,6 +269,25 @@
     .monthly-account { position: relative; z-index: 1; color: var(--muted); font-size: 12px; }
     .monthly-total { position: relative; z-index: 1; margin: 12px 0 8px; color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 900; }
     .monthly-note { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+    .order-filter { display: grid; grid-template-columns: minmax(170px, .8fr) minmax(170px, .8fr) auto; gap: 10px; align-items: end; margin-bottom: 16px; }
+    .order-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .order-summary .summary-card { min-height: 106px; }
+    .order-table { min-width: 1120px; }
+    .order-customer { display: flex; flex-direction: column; gap: 4px; }
+    .order-customer strong { color: var(--text); }
+    .order-customer span { color: var(--muted); font-size: 12px; }
+    .order-status { display: inline-flex; align-items: center; justify-content: center; min-width: 62px; padding: 4px 8px; border: 1px solid rgba(201,166,70,.28); border-radius: 999px; color: #ead59a; background: rgba(201,166,70,.1); font-size: 12px; font-weight: 900; }
+    .order-status.reminded { border-color: rgba(111,154,184,.34); color: #c8d6dc; background: rgba(111,154,184,.12); }
+    .order-status.closed { border-color: rgba(111,167,135,.34); color: #c8ead4; background: rgba(111,167,135,.12); }
+    .order-status.lost { border-color: rgba(177,91,100,.34); color: #efc0bd; background: rgba(177,91,100,.12); }
+    .order-detail-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 14px; }
+    .order-ledger { display: grid; gap: 8px; }
+    .order-ledger-row { display: grid; grid-template-columns: 94px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid rgba(219,198,154,.12); border-radius: var(--radius); background: rgba(7,9,13,.26); }
+    .order-ledger-row span { color: var(--muted); font-size: 12px; }
+    .order-ledger-row strong { font-family: "JetBrains Mono", monospace; }
+    .order-note { min-height: 96px !important; font-family: "Noto Sans SC", system-ui, sans-serif !important; }
+    .tx-entry.final-mode { grid-template-columns: minmax(120px, .72fr) minmax(220px, 1.15fr) minmax(160px, .8fr) auto auto; }
+    .tx-item { grid-template-columns: 60px 100px minmax(120px, 1fr) minmax(90px, auto) 42px 42px 42px; }
     .reconcile-layout { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
     .reconcile-result { padding: 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.3); }
     .reconcile-badge { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 6px 10px; border-radius: 999px; font-weight: 900; }
@@ -353,7 +372,7 @@
     .type-btn.active[data-type="deposit"] { color: #eff6ff; background: var(--blue); }
     .type-btn.active[data-type="final"] { color: #ecfdf5; background: var(--green); }
     .tx-list { display: flex; flex-direction: column; gap: 8px; }
-    .tx-item { display: grid; grid-template-columns: 60px 100px minmax(120px, 1fr) minmax(90px, auto) 42px 42px; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(219,198,154,.12); border-radius: var(--radius); background: rgba(10,13,17,.68); animation: slideIn .32s cubic-bezier(.19, 1, .22, 1) both; }
+    .tx-item { display: grid; grid-template-columns: 60px 100px minmax(120px, 1fr) minmax(90px, auto) 42px 42px 42px; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(219,198,154,.12); border-radius: var(--radius); background: rgba(10,13,17,.68); animation: slideIn .32s cubic-bezier(.19, 1, .22, 1) both; }
     .tx-check { justify-self: start; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(216,197,163,.2); color: var(--muted); background: rgba(216,197,163,.08); font-size: 12px; font-weight: 900; }
     .tx-check.ok { color: #c8ead4; border-color: rgba(111,167,135,.34); background: rgba(111,167,135,.14); }
     .tx-check.warn { color: #f0dc93; border-color: rgba(201,166,70,.34); background: rgba(201,166,70,.12); }
@@ -383,9 +402,9 @@
     @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-layout { grid-template-columns: 1fr; } .follow-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-list { grid-template-columns: repeat(2, minmax(220px, 1fr)); } .monthly-board-list { grid-template-columns: repeat(4, minmax(150px, 1fr)); } }
     @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions, .toolbar-left { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px 38px; } .tx-check { grid-column: 3 / -1; } }
     @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } .reconcile-row { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 1180px) { .profile-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 760px) { .profile-hero, .profile-grid { grid-template-columns: 1fr; } .activity-item { grid-template-columns: 1fr; gap: 7px; } .activity-time { text-align: left; } }
-    @media (max-width: 520px) { .profile-metrics { grid-template-columns: 1fr; } }
+    @media (max-width: 1180px) { .profile-metrics, .order-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .profile-hero, .profile-grid, .order-detail-grid { grid-template-columns: 1fr; } .activity-item { grid-template-columns: 1fr; gap: 7px; } .activity-time { text-align: left; } .order-filter, .tx-entry.final-mode { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .profile-metrics, .order-summary { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -424,6 +443,7 @@
           </div>
         </div>
         <div class="actions">
+          <button type="button" class="btn" id="orderCenterBtn">📦 订单中心</button>
           <button type="button" class="btn" id="activityBtn">📜 操作记录</button>
           <button type="button" class="btn cloud" id="syncBtn">☁️ 云端同步</button>
           <button type="button" class="btn" id="followBtn">🧾 待收尾款</button>
@@ -584,6 +604,7 @@
       function safeNumber(value) { const num = Number(value); return Number.isFinite(num) && num > 0 ? Math.round(num * 100) / 100 : 0; }
       function safeInteger(value) { const num = Number(value); return Number.isFinite(num) && num > 0 ? Math.floor(num) : 0; }
       function txId() { return `tx_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`; }
+      function orderId() { return `ord_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`; }
       function escapeHTML(value) { return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char])); }
       function money(value, digits = 0) {
         return new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(safeNumber(value));
@@ -714,12 +735,149 @@
         state.reconciliations[day] = item;
         markReconciliationUpdated(day, key, stamp);
       }
+      function normalizeOrder(order) {
+        if (!order || typeof order !== "object") return null;
+        const personId = String(order.personId || "").trim();
+        if (!getPerson(personId)) return null;
+        const depositTxId = String(order.depositTxId || "").trim();
+        if (!depositTxId) return null;
+        const status = ["pending", "reminded", "closed", "lost"].includes(order.status) ? order.status : "pending";
+        return {
+          id: String(order.id || `order_${depositTxId}`).trim().slice(0, 96),
+          personId,
+          depositTxId,
+          depositDate: /^\d{4}-\d{2}-\d{2}$/.test(order.depositDate || "") ? order.depositDate : "",
+          customerName: String(order.customerName || "").trim().slice(0, 48),
+          orderAmount: safeNumber(order.orderAmount),
+          dueDate: /^\d{4}-\d{2}-\d{2}$/.test(order.dueDate || "") ? order.dueDate : "",
+          note: String(order.note || "").trim().slice(0, 300),
+          status,
+          createdAt: order.createdAt || nowIso(),
+          updatedAt: order.updatedAt || order.createdAt || nowIso()
+        };
+      }
+      function normalizeOrders(list) {
+        const map = new Map();
+        (Array.isArray(list) ? list : []).forEach((item) => {
+          const order = normalizeOrder(item);
+          if (!order) return;
+          const existing = map.get(order.id);
+          if (!existing || newerTime(order.updatedAt, existing.updatedAt)) map.set(order.id, order);
+        });
+        return Array.from(map.values());
+      }
+      function findTransactionInState(targetState, personId, txIdValue) {
+        const entries = targetState.entries && targetState.entries[personId] ? targetState.entries[personId] : [];
+        for (const entry of entries) {
+          const tx = (entry.transactions || []).find((item) => item.id === txIdValue);
+          if (tx) return { entry, tx };
+        }
+        return null;
+      }
+      function hydrateOrders(targetState = state) {
+        const sourceOrders = normalizeOrders(targetState.orders);
+        const byId = new Map(sourceOrders.map((order) => [order.id, order]));
+        const byDeposit = new Map(sourceOrders.map((order) => [order.depositTxId, order]));
+        const active = [];
+        people.forEach((person) => {
+          (targetState.entries[person.id] || []).forEach((entry) => {
+            (entry.transactions || []).forEach((tx) => {
+              if (tx.type !== "deposit") return;
+              const id = tx.orderId || (byDeposit.get(tx.id) || {}).id || `order_${tx.id}`;
+              tx.orderId = id;
+              let order = byId.get(id) || byDeposit.get(tx.id);
+              if (!order) {
+                order = {
+                  id,
+                  personId: person.id,
+                  depositTxId: tx.id,
+                  depositDate: entry.date,
+                  customerName: tx.customerName || "",
+                  orderAmount: safeNumber(tx.orderAmount) || safeNumber(tx.amount),
+                  dueDate: "",
+                  note: "",
+                  status: tx.followStatus || "pending",
+                  createdAt: tx.createdAt || nowIso(),
+                  updatedAt: tx.updatedAt || tx.followUpdatedAt || tx.createdAt || nowIso()
+                };
+              }
+              order.personId = person.id;
+              order.depositTxId = tx.id;
+              order.depositDate = order.depositDate || entry.date;
+              order.customerName = order.customerName || tx.customerName || "";
+              order.orderAmount = safeNumber(order.orderAmount) || safeNumber(tx.orderAmount) || safeNumber(tx.amount);
+              order.status = ["pending", "reminded", "closed", "lost"].includes(order.status) ? order.status : (tx.followStatus || "pending");
+              order.updatedAt = order.updatedAt || tx.updatedAt || tx.createdAt || nowIso();
+              byId.set(order.id, order);
+              active.push(order);
+            });
+          });
+        });
+        const unique = new Map();
+        active.forEach((order) => unique.set(order.id, normalizeOrder(order)));
+        targetState.orders = Array.from(unique.values()).filter(Boolean);
+        return targetState.orders;
+      }
+      function orderById(orderIdValue, targetState = state) {
+        return (targetState.orders || []).find((order) => order.id === orderIdValue) || null;
+      }
+      function orderRecords(personIdFilter = "", monthFilter = "", targetState = state) {
+        hydrateOrders(targetState);
+        const records = [];
+        (targetState.orders || []).forEach((order) => {
+          if (personIdFilter && order.personId !== personIdFilter) return;
+          if (monthFilter && !String(order.depositDate || "").startsWith(monthFilter)) return;
+          const depositRef = findTransactionInState(targetState, order.personId, order.depositTxId);
+          if (!depositRef || depositRef.tx.type !== "deposit") return;
+          const finals = [];
+          (targetState.entries[order.personId] || []).forEach((entry) => {
+            (entry.transactions || []).forEach((tx) => {
+              if (tx.type === "final" && tx.orderId === order.id) finals.push({ entry, tx });
+            });
+          });
+          const depositAmount = safeNumber(depositRef.tx.amount);
+          const finalAmount = finals.reduce((sum, item) => sum + safeNumber(item.tx.amount), 0);
+          const orderAmount = safeNumber(order.orderAmount) || safeNumber(depositRef.tx.orderAmount) || depositAmount;
+          const receivedAmount = Math.round((depositAmount + finalAmount) * 100) / 100;
+          const pendingAmount = Math.max(Math.round((orderAmount - receivedAmount) * 100) / 100, 0);
+          const status = pendingAmount <= 0 ? "closed" : (order.status === "closed" ? "pending" : order.status || "pending");
+          records.push({
+            order,
+            person: getPerson(order.personId),
+            entry: depositRef.entry,
+            tx: depositRef.tx,
+            finals,
+            amount: depositAmount,
+            depositAmount,
+            finalAmount,
+            receivedAmount,
+            orderAmount,
+            pendingAmount,
+            status,
+            days: daysBetween(order.depositDate || depositRef.entry.date),
+            overdue: Boolean(order.dueDate && order.dueDate < dateKey() && pendingAmount > 0 && status !== "lost")
+          });
+        });
+        return records.sort((a, b) => b.pendingAmount - a.pendingAmount || b.days - a.days || b.order.updatedAt.localeCompare(a.order.updatedAt));
+      }
+      function setOrderStatus(order, status) {
+        if (!order) return;
+        order.status = status;
+        order.updatedAt = nowIso();
+        const depositRef = findTransactionInState(state, order.personId, order.depositTxId);
+        if (depositRef) {
+          depositRef.tx.followStatus = status;
+          depositRef.tx.followUpdatedAt = order.updatedAt;
+          depositRef.tx.updatedAt = order.updatedAt;
+          markEntryUpdated(order.personId, depositRef.entry.date);
+        }
+      }
 
       function defaultState() {
         const entries = {};
         const goals = {};
         people.forEach((person) => { entries[person.id] = []; goals[person.id] = 50000; });
-        return { entries, goals, reconciliations: {}, activityLog: [], meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} } };
+        return { entries, goals, orders: [], reconciliations: {}, activityLog: [], meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} } };
       }
 
       function loadState() {
@@ -741,6 +899,7 @@
           const hasGoal = input.goals && Object.prototype.hasOwnProperty.call(input.goals, person.id);
           next.goals[person.id] = hasGoal ? safeNumber(input.goals[person.id]) : 50000;
         });
+        next.orders = normalizeOrders(input.orders);
         if (input.reconciliations && typeof input.reconciliations === "object") {
           Object.entries(input.reconciliations).forEach(([day, item]) => {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !item || typeof item !== "object") return;
@@ -756,6 +915,7 @@
           reconciliations: input.meta && input.meta.reconciliations && typeof input.meta.reconciliations === "object" ? input.meta.reconciliations : {}
         };
         applyDeletedMarkers(next);
+        hydrateOrders(next);
         return next;
       }
 
@@ -777,15 +937,17 @@
           const amount = safeNumber(tx && tx.amount);
           const type = tx && typeMeta[tx.type] ? tx.type : "";
           if (!amount || !type) return;
-          const normalizedTx = { id: tx.id || txId(), amount, type, createdAt: tx.createdAt || new Date().toISOString() };
+          const normalizedTx = { id: tx.id || txId(), amount, type, createdAt: tx.createdAt || new Date().toISOString(), updatedAt: tx.updatedAt || tx.followUpdatedAt || tx.createdAt || new Date().toISOString() };
           const lakalaLogNo = cleanLakalaLogNo(tx.lakalaLogNo || tx.lakalaLog || tx.logNo || tx.log_no || "");
           if (lakalaLogNo) normalizedTx.lakalaLogNo = lakalaLogNo;
           if (type === "deposit") {
+            normalizedTx.orderId = String(tx.orderId || "").trim().slice(0, 96);
             normalizedTx.orderAmount = safeNumber(tx.orderAmount) || safeNumber(tx.dealAmount) || amount;
             normalizedTx.customerName = String(tx.customerName || tx.customer || "").trim();
             normalizedTx.followStatus = ["pending", "reminded", "closed", "lost"].includes(tx.followStatus) ? tx.followStatus : "pending";
             normalizedTx.followUpdatedAt = tx.followUpdatedAt || tx.createdAt || normalizedTx.createdAt;
           }
+          if (type === "final" && tx.orderId) normalizedTx.orderId = String(tx.orderId).trim().slice(0, 96);
           normalized.transactions.push(normalizedTx);
         });
         if (!normalized.transactions.length) {
@@ -794,6 +956,7 @@
             if (!amount) return;
             const legacyTx = { id: txId(), amount, type };
             legacyTx.createdAt = new Date().toISOString();
+            legacyTx.updatedAt = legacyTx.createdAt;
             if (type === "deposit") {
               legacyTx.orderAmount = safeNumber(entry.depositOrderAmount) || amount;
               legacyTx.customerName = "";
@@ -838,6 +1001,7 @@
             .map(normalizeEntry)
             .filter((entry) => entry.privateCount || entry.dealsCount || entry.transactions.length);
         });
+        hydrateOrders(state);
       }
 
       function persistLocalState() {
@@ -917,6 +1081,7 @@
         const local = normalizeState(localInput || defaultState());
         const merged = defaultState();
         merged.activityLog = normalizeActivityLog([...(remote.activityLog || []), ...(local.activityLog || [])]);
+        merged.orders = normalizeOrders([...(remote.orders || []), ...(local.orders || [])]);
         merged.meta = {
           goals: { ...(remote.meta && remote.meta.goals ? remote.meta.goals : {}), ...(local.meta && local.meta.goals ? local.meta.goals : {}) },
           entries: { ...(remote.meta && remote.meta.entries ? remote.meta.entries : {}), ...(local.meta && local.meta.entries ? local.meta.entries : {}) },
@@ -983,7 +1148,7 @@
         [...(a.transactions || []), ...(b.transactions || [])].forEach((tx) => {
           if (deletedTx[tx.id]) return;
           const existing = txMap.get(tx.id);
-          if (!existing || newerTime(tx.followUpdatedAt || tx.createdAt, existing.followUpdatedAt || existing.createdAt)) txMap.set(tx.id, { ...tx });
+          if (!existing || newerTime(tx.updatedAt || tx.followUpdatedAt || tx.createdAt, existing.updatedAt || existing.followUpdatedAt || existing.createdAt)) txMap.set(tx.id, { ...tx });
         });
         return recalcEntry({
           date: a.date,
@@ -1234,26 +1399,9 @@
         return map[status] || map.pending;
       }
       function pendingDepositOrders(personIdFilter = "", monthFilter = "") {
-        const orders = [];
-        people.forEach((person) => {
-          if (personIdFilter && person.id !== personIdFilter) return;
-          (state.entries[person.id] || []).forEach((entry) => {
-            if (monthFilter && !entry.date.startsWith(monthFilter)) return;
-            (entry.transactions || []).forEach((tx) => {
-              if (tx.type !== "deposit") return;
-              const amount = safeNumber(tx.amount);
-              const orderAmount = safeNumber(tx.orderAmount) || amount;
-              const pendingAmount = Math.max(orderAmount - amount, 0);
-              const status = tx.followStatus || "pending";
-              if (!pendingAmount || status === "closed" || status === "lost") return;
-              orders.push({ person, entry, tx, amount, orderAmount, pendingAmount, status, days: daysBetween(entry.date) });
-            });
-          });
-        });
-        return orders.sort((a, b) => {
-          const statusWeight = (item) => item.status === "pending" ? 1 : 0;
-          return statusWeight(b) - statusWeight(a) || b.days - a.days || b.pendingAmount - a.pendingAmount;
-        });
+        return orderRecords(personIdFilter, monthFilter)
+          .filter((item) => item.pendingAmount > 0 && item.status !== "lost")
+          .sort((a, b) => Number(b.overdue) - Number(a.overdue) || b.pendingAmount - a.pendingAmount || b.days - a.days);
       }
       function receivableMetrics(personId, month = activeMonth()) {
         const orders = pendingDepositOrders(personId, month);
@@ -1261,8 +1409,9 @@
           count: orders.length,
           orderAmount: orders.reduce((sum, item) => sum + item.orderAmount, 0),
           depositAmount: orders.reduce((sum, item) => sum + item.amount, 0),
+          receivedAmount: orders.reduce((sum, item) => sum + item.receivedAmount, 0),
           pendingAmount: orders.reduce((sum, item) => sum + item.pendingAmount, 0),
-          overdueCount: orders.filter((item) => item.days >= 3 && item.status !== "reminded").length,
+          overdueCount: orders.filter((item) => item.overdue || (item.days >= 3 && item.status !== "reminded")).length,
           remindedCount: orders.filter((item) => item.status === "reminded").length,
           orders
         };
@@ -1271,7 +1420,7 @@
         const orders = pendingDepositOrders();
         const pendingTotal = orders.reduce((sum, item) => sum + item.pendingAmount, 0);
         const orderTotal = orders.reduce((sum, item) => sum + item.orderAmount, 0);
-        const overdueCount = orders.filter((item) => item.days >= 3 && item.status !== "reminded").length;
+        const overdueCount = orders.filter((item) => item.overdue || (item.days >= 3 && item.status !== "reminded")).length;
         const remindedCount = orders.filter((item) => item.status === "reminded").length;
         $("#followSummary").textContent = orders.length ? `${orders.length} 笔待跟进 · ${money(pendingTotal)} 待收` : "暂无待收尾款";
         $("#followStats").innerHTML = [
@@ -1279,7 +1428,7 @@
           followStat("订单总额", money(orderTotal), `${orders.length} 笔定金订单`),
           followStat("超 3 天", `${overdueCount} 笔`, `已提醒 ${remindedCount} 笔`)
         ].join("");
-        $("#followPool").innerHTML = orders.length ? orders.slice(0, 12).map(followCard).join("") : `<div class="empty" style="grid-column:1/-1;">目前没有待收尾款订单。定金订单标记“已收齐”或“流失”后，会自动从这里移除。</div>`;
+        $("#followPool").innerHTML = orders.length ? orders.slice(0, 12).map(followCard).join("") : `<div class="empty" style="grid-column:1/-1;">目前没有待收尾款订单。尾款关联到账订单后，订单会自动标记为已收齐。</div>`;
         bindFollowPool();
       }
       function followStat(label, value, sub) {
@@ -1287,57 +1436,53 @@
       }
       function followCard(item) {
         const meta = followStatusMeta(item.status);
-        const overdue = item.days >= 3 && item.status !== "reminded";
-        const customerName = item.tx.customerName ? escapeHTML(item.tx.customerName) : "未填写客户";
+        const overdue = item.overdue || (item.days >= 3 && item.status !== "reminded");
+        const customerName = item.order.customerName ? escapeHTML(item.order.customerName) : "未填写客户";
         return `
-          <article class="follow-card ${overdue ? "overdue" : ""} ${meta.className}" data-tx="${item.tx.id}">
+          <article class="follow-card ${overdue ? "overdue" : ""} ${meta.className}" data-order="${item.order.id}">
             <div class="follow-top">
-              <div class="follow-name"><strong>${customerName}</strong><span>${escapeHTML(item.person.name)} · ${escapeHTML(item.person.account)} · ${item.entry.date}</span></div>
+              <div class="follow-name"><strong>${customerName}</strong><span>${escapeHTML(item.person.name)} · ${escapeHTML(item.person.account)} · ${item.order.depositDate}</span></div>
               <span class="follow-status ${meta.className}">${overdue ? "需跟进" : meta.label}</span>
             </div>
             <div class="follow-money">
               <div><span>订单</span><strong class="money gold">${money(item.orderAmount)}</strong></div>
-              <div><span>定金</span><strong class="money blue">${money(item.amount)}</strong></div>
+              <div><span>已收</span><strong class="money blue">${money(item.receivedAmount)}</strong></div>
               <div><span>待收</span><strong class="money red">${money(item.pendingAmount)}</strong></div>
             </div>
-            <p class="summary-small">已等待 ${item.days} 天${item.status === "reminded" ? " · 已提醒客户" : ""}</p>
+            <p class="summary-small">已等待 ${item.days} 天${item.order.dueDate ? ` · 约定 ${item.order.dueDate.slice(5)}` : ""}${item.status === "reminded" ? " · 已提醒客户" : ""}</p>
             <div class="follow-actions">
-              <button type="button" class="btn" data-follow-open="${item.person.id}" data-date="${item.entry.date}">查看明细</button>
-              <button type="button" class="btn cloud" data-follow-status="reminded" data-tx="${item.tx.id}">${item.status === "reminded" ? "再次提醒" : "已提醒"}</button>
-              <button type="button" class="btn primary" data-follow-status="closed" data-tx="${item.tx.id}">已收齐</button>
-              <button type="button" class="btn danger" data-follow-status="lost" data-tx="${item.tx.id}">流失</button>
+              <button type="button" class="btn" data-order-detail="${item.order.id}">订单详情</button>
+              <button type="button" class="btn cloud" data-follow-status="reminded" data-order="${item.order.id}">${item.status === "reminded" ? "再次提醒" : "已提醒"}</button>
+              <button type="button" class="btn primary" data-order-detail="${item.order.id}">登记尾款</button>
+              <button type="button" class="btn danger" data-follow-status="lost" data-order="${item.order.id}">流失</button>
             </div>
           </article>
         `;
       }
       function bindFollowPool() {
-        $$("[data-follow-open]").forEach((button) => button.addEventListener("click", () => openTransactionModal(button.dataset.followOpen, button.dataset.date)));
-        $$("[data-follow-status]").forEach((button) => button.addEventListener("click", () => updateDepositFollowStatus(button.dataset.tx, button.dataset.followStatus)));
+        $$("[data-order-detail]").forEach((button) => button.addEventListener("click", () => openOrderDetail(button.dataset.orderDetail)));
+        $$("[data-follow-status]").forEach((button) => button.addEventListener("click", () => updateOrderFollowStatus(button.dataset.order, button.dataset.followStatus)));
       }
-      function updateDepositFollowStatus(txIdValue, status) {
+      function updateOrderFollowStatus(orderIdValue, status) {
         if (!requireEdit()) return;
-        let changed = null;
-        people.some((person) => (state.entries[person.id] || []).some((entry) => {
-          const tx = (entry.transactions || []).find((item) => item.id === txIdValue);
-          if (!tx) return false;
-          if (status === "closed" && !confirm("确认这笔定金订单已经收齐尾款？")) return true;
-          if (status === "lost" && !confirm("确认将这笔定金订单标记为流失？")) return true;
-          tx.followStatus = status;
-          tx.followUpdatedAt = nowIso();
-          recalcEntry(entry);
-          markEntryUpdated(person.id, entry.date);
-          changed = { person, entry, tx };
-          return true;
-        }));
-        if (!changed) return;
+        const order = orderById(orderIdValue);
+        const record = orderRecords().find((item) => item.order.id === orderIdValue);
+        if (!order || !record) return;
+        if (status === "closed" && record.pendingAmount > 0) {
+          toast("请先在订单详情中录入并关联尾款，系统会自动标记为已收齐");
+          openOrderDetail(orderIdValue);
+          return;
+        }
+        if (status === "lost" && !confirm("确认将这笔订单标记为流失？")) return;
+        setOrderStatus(order, status);
         recordActivity("更新尾款跟进", {
-          personId: changed.person.id,
-          date: changed.entry.date,
-          detail: `${changed.tx.customerName || "未命名客户"} · ${followStatusMeta(status).label} · 待收 ${money(Math.max(safeNumber(changed.tx.orderAmount) - safeNumber(changed.tx.amount), 0))}`
+          personId: order.personId,
+          date: order.depositDate,
+          detail: `${order.customerName || "未命名客户"} · ${followStatusMeta(status).label} · 待收 ${money(record.pendingAmount)}`
         });
         saveState();
         pushRemoteState();
-        renderAll(changed.person.id);
+        renderAll(order.personId);
         toast(`尾款跟进状态已更新：${followStatusMeta(status).label}`);
       }
 
@@ -1796,8 +1941,206 @@
         document.body.style.overflow = "";
       }
 
-      function openTransactionModal(personId, day = dateKey(), fresh = true) {
-        txModal = { personId, date: day, type: fresh ? "full" : (txModal.type || "full") };
+      function orderStatusBadge(status) {
+        const meta = followStatusMeta(status);
+        return `<span class="order-status ${meta.className}">${meta.label}</span>`;
+      }
+      function orderStatusOptions(selected = "pending", allowClosed = false) {
+        const entries = [
+          ["pending", "待跟进"],
+          ["reminded", "已提醒"],
+          ["lost", "已流失"]
+        ];
+        if (allowClosed || selected === "closed") entries.unshift(["closed", "已收齐"]);
+        return entries.map(([value, label]) => `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`).join("");
+      }
+      function orderCenterRecords() {
+        const personId = $("#orderPersonFilter") ? $("#orderPersonFilter").value : "";
+        const status = $("#orderStatusFilter") ? $("#orderStatusFilter").value : "active";
+        return orderRecords(personId).filter((item) => {
+          if (status === "active") return item.status !== "closed" && item.status !== "lost";
+          if (status === "closed") return item.status === "closed";
+          if (status === "lost") return item.status === "lost";
+          return true;
+        });
+      }
+      function renderOrderCenterView() {
+        const records = orderCenterRecords();
+        const active = records.filter((item) => item.status !== "closed" && item.status !== "lost");
+        const pending = active.reduce((sum, item) => sum + item.pendingAmount, 0);
+        const received = records.reduce((sum, item) => sum + item.receivedAmount, 0);
+        const overdue = active.filter((item) => item.overdue || (item.days >= 3 && item.status === "pending")).length;
+        $("#orderCenterSummary").innerHTML = [
+          detailSummary("订单数量", `${records.length} 笔`, `进行中 ${active.length} 笔`, ""),
+          detailSummary("待收尾款", money(pending), `${overdue} 笔需跟进`, pending ? "total" : "final"),
+          detailSummary("订单已收", money(received), "定金与已关联尾款", "deposit"),
+          detailSummary("已收齐", `${records.filter((item) => item.status === "closed").length} 笔`, "尾款到账后自动完成", "final")
+        ].join("");
+        $("#orderCenterRows").innerHTML = records.length ? records.map((item) => `
+          <tr>
+            <td><div class="order-customer"><strong>${escapeHTML(item.order.customerName || "未填写客户")}</strong><span>${escapeHTML(item.person.name)} · ${item.order.depositDate}</span></div></td>
+            <td class="money gold">${money(item.orderAmount)}</td>
+            <td class="money blue">${money(item.depositAmount)}</td>
+            <td class="money green">${money(item.finalAmount)}</td>
+            <td class="money">${money(item.receivedAmount)}</td>
+            <td class="money ${item.pendingAmount ? "red" : "green"}">${money(item.pendingAmount)}</td>
+            <td>${orderStatusBadge(item.status)}</td>
+            <td>${item.order.dueDate ? `<span class="money ${item.overdue ? "red" : ""}">${item.order.dueDate}</span>` : `<span class="summary-small">未设置</span>`}</td>
+            <td><button type="button" class="icon-btn" data-order-detail="${item.order.id}" title="订单详情">📦</button></td>
+          </tr>
+        `).join("") : `<tr><td colspan="9"><div class="empty">没有符合条件的订单。新增一笔定金后，系统会自动创建订单。</div></td></tr>`;
+      }
+      function openOrderCenter() {
+        const personOptions = [`<option value="">全部销售员</option>`, ...people.map((person) => `<option value="${person.id}">${escapeHTML(person.name)} · ${escapeHTML(person.account)}</option>`)].join("");
+        const body = `
+          <div class="order-filter">
+            <div class="field"><label for="orderPersonFilter">销售员</label><select id="orderPersonFilter">${personOptions}</select></div>
+            <div class="field"><label for="orderStatusFilter">订单状态</label><select id="orderStatusFilter"><option value="active">进行中</option><option value="all">全部订单</option><option value="closed">已收齐</option><option value="lost">已流失</option></select></div>
+            <button type="button" class="btn" id="orderRefreshBtn">刷新订单</button>
+          </div>
+          <div class="order-summary" id="orderCenterSummary"></div>
+          <div class="scroll"><table class="daily-table order-table"><thead><tr><th>客户 / 销售员</th><th>订单金额</th><th>定金</th><th>尾款</th><th>已收合计</th><th>待收尾款</th><th>状态</th><th>约定收尾款</th><th>操作</th></tr></thead><tbody id="orderCenterRows"></tbody></table></div>
+        `;
+        openModal(modalShell("订单中心", "定金自动生成订单；尾款关联后自动计算待收与订单状态", body, "wide"), () => {
+          renderOrderCenterView();
+          $("#orderPersonFilter").addEventListener("change", renderOrderCenterView);
+          $("#orderStatusFilter").addEventListener("change", renderOrderCenterView);
+          $("#orderRefreshBtn").addEventListener("click", renderOrderCenterView);
+          $("#orderCenterRows").addEventListener("click", (event) => {
+            const button = event.target.closest("[data-order-detail]");
+            if (button) openOrderDetail(button.dataset.orderDetail);
+          });
+        });
+      }
+      function unlinkedFinalTransactions(personId) {
+        const rows = [];
+        (state.entries[personId] || []).forEach((entry) => {
+          (entry.transactions || []).forEach((tx) => {
+            if (tx.type === "final" && !tx.orderId) rows.push({ entry, tx });
+          });
+        });
+        return rows.sort((a, b) => b.entry.date.localeCompare(a.entry.date) || b.tx.createdAt.localeCompare(a.tx.createdAt));
+      }
+      function openOrderDetail(orderIdValue) {
+        const record = orderRecords().find((item) => item.order.id === orderIdValue);
+        if (!record) { toast("该订单的定金记录已不存在"); closeModal(); return; }
+        const { order, person } = record;
+        const unlinkedFinals = unlinkedFinalTransactions(order.personId);
+        const attachOptions = [`<option value="">选择一笔未关联尾款</option>`, ...unlinkedFinals.map((item) => `<option value="${item.tx.id}">${item.entry.date} · ${money(item.tx.amount)}</option>`)].join("");
+        const ledgerRows = [
+          `<div class="order-ledger-row"><span>定金 · ${record.entry.date}</span><strong class="blue">${money(record.depositAmount)}</strong><span>${escapeHTML(order.customerName || "未填写客户")}</span></div>`,
+          ...record.finals.map((item) => `<div class="order-ledger-row"><span>尾款 · ${item.entry.date}</span><strong class="green">${money(item.tx.amount)}</strong><span>已关联</span></div>`)
+        ].join("");
+        const body = `
+          <div class="summary-grid">
+            ${detailSummary("订单金额", money(record.orderAmount), "定金订单对应总额", "total")}
+            ${detailSummary("定金到账", money(record.depositAmount), `${record.entry.date} 录入`, "deposit")}
+            ${detailSummary("已收尾款", money(record.finalAmount), `${record.finals.length} 笔已关联`, "final")}
+            ${detailSummary("待收尾款", money(record.pendingAmount), record.pendingAmount ? `${record.days} 天待收` : "已自动收齐", record.pendingAmount ? "" : "final")}
+          </div>
+          <div class="order-detail-grid">
+            <form id="orderForm" class="profile-block">
+              <h3>订单信息</h3>
+              <div class="form-grid">
+                <div class="field"><label for="orderCustomerName">客户姓名</label><input id="orderCustomerName" maxlength="48" value="${escapeHTML(order.customerName)}" placeholder="客户姓名"></div>
+                <div class="field"><label for="orderAmountEdit">订单金额</label><input id="orderAmountEdit" type="number" min="0" step="0.01" value="${safeNumber(order.orderAmount)}"></div>
+                <div class="field"><label for="orderDueDate">约定收尾款日期</label><input id="orderDueDate" type="date" value="${order.dueDate}"></div>
+                <div class="field"><label for="orderStatus">跟进状态</label><select id="orderStatus">${orderStatusOptions(record.status, record.pendingAmount <= 0)}</select></div>
+              </div>
+              <div class="field" style="margin-top:14px;"><label for="orderNote">跟进备注</label><textarea class="order-note" id="orderNote" maxlength="300" placeholder="例如：已联系客户，约周五补尾款">${escapeHTML(order.note)}</textarea></div>
+              <div class="modal-actions"><button type="button" class="btn" id="recordFinalBtn">+ 登记尾款</button><button type="submit" class="btn primary">保存订单</button></div>
+            </form>
+            <section class="profile-block">
+              <h3>订单收款明细</h3>
+              <div class="order-ledger">${ledgerRows}</div>
+              <div class="field" style="margin-top:16px;"><label for="attachFinalTx">补关联历史尾款</label><select id="attachFinalTx">${attachOptions}</select></div>
+              <div class="modal-actions"><button type="button" class="btn cloud" id="attachFinalBtn" ${unlinkedFinals.length ? "" : "disabled"}>关联尾款</button></div>
+              <p class="hint">尾款关联后会计入本订单“已收合计”，待收金额归零时自动变为“已收齐”。</p>
+            </section>
+          </div>
+        `;
+        openModal(modalShell(`${escapeHTML(order.customerName || "未命名客户")} · 订单详情`, `${escapeHTML(person.name)} · 定金 ${record.entry.date} · ${orderStatusBadge(record.status)}`, body, "wide"), () => {
+          $("#recordFinalBtn").addEventListener("click", () => openTransactionModal(order.personId, dateKey(), true, order.id));
+          $("#attachFinalBtn").addEventListener("click", () => attachFinalToOrder($("#attachFinalTx").value, order.id));
+          $("#orderForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const nextAmount = safeNumber($("#orderAmountEdit").value);
+            if (!nextAmount || nextAmount < record.receivedAmount) { toast(`订单金额不能低于已收 ${money(record.receivedAmount)}`); return; }
+            order.customerName = $("#orderCustomerName").value.trim();
+            order.orderAmount = nextAmount;
+            order.dueDate = $("#orderDueDate").value || "";
+            order.note = $("#orderNote").value.trim();
+            const nextStatus = $("#orderStatus").value;
+            if (nextStatus === "closed" && record.pendingAmount > 0) { toast("还有待收尾款，请先关联尾款后系统会自动收齐"); return; }
+            setOrderStatus(order, nextStatus);
+            const depositRef = findTransactionInState(state, order.personId, order.depositTxId);
+            if (depositRef) {
+              depositRef.tx.customerName = order.customerName;
+              depositRef.tx.orderAmount = order.orderAmount;
+              depositRef.tx.updatedAt = order.updatedAt;
+              recalcEntry(depositRef.entry);
+              markEntryUpdated(order.personId, depositRef.entry.date);
+            }
+            recordActivity("更新订单", { personId: order.personId, date: order.depositDate, detail: `${order.customerName || "未命名客户"} · 订单 ${money(order.orderAmount)} · ${followStatusMeta(nextStatus).label}` });
+            saveState();
+            pushRemoteState();
+            renderAll(order.personId);
+            openOrderDetail(order.id);
+            toast("订单信息已保存");
+          });
+        });
+      }
+      function attachFinalToOrder(txIdValue, orderIdValue) {
+        if (!txIdValue) { toast("请选择一笔未关联尾款"); return; }
+        const order = orderById(orderIdValue);
+        if (!order) return;
+        const finalRef = findTransactionInState(state, order.personId, txIdValue);
+        if (!finalRef || finalRef.tx.type !== "final") { toast("这笔尾款无法关联"); return; }
+        finalRef.tx.orderId = order.id;
+        finalRef.tx.updatedAt = nowIso();
+        const existingRecord = orderRecords(order.personId).find((item) => item.order.id === order.id);
+        order.status = existingRecord && existingRecord.receivedAmount >= existingRecord.orderAmount ? "closed" : "pending";
+        order.updatedAt = finalRef.tx.updatedAt;
+        markEntryUpdated(order.personId, finalRef.entry.date);
+        recordActivity("关联历史尾款", { personId: order.personId, date: finalRef.entry.date, detail: `${order.customerName || "未命名客户"} · 尾款 ${money(finalRef.tx.amount)}` });
+        saveState();
+        pushRemoteState();
+        renderAll(order.personId);
+        openOrderDetail(order.id);
+        toast("尾款已关联到订单");
+      }
+      function openLinkFinalModal(txIdValue) {
+        const entry = getEntry(txModal.personId, txModal.date);
+        const tx = entry && (entry.transactions || []).find((item) => item.id === txIdValue);
+        if (!tx || tx.type !== "final") return;
+        const body = `<form id="linkFinalForm"><div class="field"><label for="linkFinalOrder">关联订单</label><select id="linkFinalOrder">${finalOrderOptions(txModal.personId, tx.orderId || "")}</select></div><p class="hint">选择订单后，这笔尾款会自动计入该订单已收金额；保留为空则仅作为独立尾款记录。</p><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存关联</button></div></form>`;
+        openModal(modalShell("关联尾款订单", `${money(tx.amount)} · ${txModal.date}`, body, "narrow"), () => {
+          $("#linkFinalForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const nextOrderId = $("#linkFinalOrder").value || "";
+            if (nextOrderId) {
+              const order = orderById(nextOrderId);
+              if (!order || order.personId !== txModal.personId) { toast("关联订单无效"); return; }
+              tx.orderId = nextOrderId;
+              const existingRecord = orderRecords(txModal.personId).find((item) => item.order.id === nextOrderId);
+              order.status = existingRecord && existingRecord.receivedAmount >= existingRecord.orderAmount ? "closed" : "pending";
+              order.updatedAt = nowIso();
+            } else {
+              delete tx.orderId;
+            }
+            tx.updatedAt = nowIso();
+            markEntryUpdated(txModal.personId, txModal.date);
+            recordActivity(nextOrderId ? "关联尾款订单" : "取消尾款关联", { personId: txModal.personId, date: txModal.date, detail: `${money(tx.amount)}${nextOrderId ? " · 已关联订单" : " · 独立尾款"}` });
+            saveState();
+            pushRemoteState();
+            renderAll(txModal.personId);
+            openTransactionModal(txModal.personId, txModal.date, false);
+            toast(nextOrderId ? "尾款已关联订单" : "尾款已取消关联");
+          });
+        });
+      }
+      function openTransactionModal(personId, day = dateKey(), fresh = true, linkedOrderId = "") {
+        txModal = { personId, date: day, type: fresh ? (linkedOrderId ? "final" : "full") : (txModal.type || "full"), orderId: linkedOrderId || (fresh ? "" : (txModal.orderId || "")) };
         renderTransactionModal(true);
       }
       function renderTransactionModal(focus = false) {
@@ -1814,10 +2157,11 @@
             ${txSummary("final", metrics.finalPayment, metrics.finalCount, "不计入业绩")}
             <div class="summary-card total"><p class="summary-label">当日实际成交</p><p class="summary-value">${money(metrics.total)}</p><p class="summary-small">${metrics.transactionCount} 笔</p></div>
           </div>
-          <form class="tx-entry ${txModal.type === "deposit" ? "deposit-mode" : ""}" id="txForm">
+          <form class="tx-entry ${txModal.type === "deposit" ? "deposit-mode" : txModal.type === "final" ? "final-mode" : ""}" id="txForm">
             <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
             <div class="field" id="txCustomerField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txCustomerName">客户姓名</label><input type="text" id="txCustomerName" maxlength="24" placeholder="例：张先生 / 王女士" autocomplete="off"></div>
             <div class="field" id="txOrderField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txOrderAmount">订单金额（计入实际成交）</label><input type="number" id="txOrderAmount" inputmode="decimal" min="0" step="0.01" placeholder="例：订单2400，定金400，这里填2400"></div>
+            <div class="field" id="txLinkOrderField" style="${txModal.type === "final" ? "" : "display:none;"}"><label for="txOrderId">关联订单（尾款归属）</label><select id="txOrderId">${finalOrderOptions(person.id, txModal.orderId)}</select></div>
             <div class="field"><label for="txLakalaLogNo">拉卡拉流水号（可选）</label><input type="text" id="txLakalaLogNo" maxlength="64" placeholder="log_no / 对账单流水号" autocomplete="off"></div>
             <div><label class="summary-label" style="display:block;margin-bottom:7px;">类型</label><div class="type-toggle" id="typeToggle">${typeButton("full")}${typeButton("deposit")}${typeButton("final")}</div></div>
             <button type="submit" class="btn primary">+ 新增</button>
@@ -1830,6 +2174,18 @@
         const meta = typeMeta[type];
         return `<div class="summary-card ${meta.className}"><p class="summary-label">${meta.label}</p><p class="summary-value">${money(amount)}</p><p class="summary-small">${count} 笔${extra ? ` · ${extra}` : ""}</p></div>`;
       }
+      function finalOrderOptions(personId, selectedOrderId = "") {
+        const allOrders = orderRecords(personId);
+        const orders = allOrders.filter((item) => item.pendingAmount > 0 && item.status !== "lost");
+        const selected = selectedOrderId ? allOrders.find((item) => item.order.id === selectedOrderId) : null;
+        if (selected && !orders.some((item) => item.order.id === selected.order.id)) orders.push(selected);
+        const options = [`<option value="">不关联订单（仅记录尾款）</option>`];
+        orders.forEach((item) => {
+          const label = `${item.order.customerName || "未命名客户"} · 待收 ${money(item.pendingAmount)} · ${item.order.depositDate}`;
+          options.push(`<option value="${escapeHTML(item.order.id)}" ${item.order.id === selectedOrderId ? "selected" : ""}>${escapeHTML(label)}</option>`);
+        });
+        return options.join("");
+      }
       function typeButton(type) { return `<button type="button" class="type-btn ${txModal.type === type ? "active" : ""}" data-type="${type}">${typeMeta[type].label}</button>`; }
       function txAmountLabel() { return txModal.type === "deposit" ? "定金到账" : txModal.type === "final" ? "尾款到账" : "全款金额"; }
       function txAmountPlaceholder() { return txModal.type === "deposit" ? "输入实际收到的定金，如 400" : txModal.type === "final" ? "输入尾款到账金额，不计入业绩" : "输入全款金额，回车提交"; }
@@ -1837,15 +2193,24 @@
         const amount = safeNumber(tx.amount);
         if (tx.type === "deposit") {
           const customerName = tx.customerName ? `${escapeHTML(tx.customerName)} · ` : "";
-          return `${customerName}定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)} · ${followStatusMeta(tx.followStatus).label}`;
+          const record = tx.orderId ? orderRecords(txModal.personId).find((item) => item.order.id === tx.orderId) : null;
+          return `${customerName}定金 ${money(amount)} · 业绩 ${money(safeNumber(tx.orderAmount) || amount)} · ${followStatusMeta(record ? record.status : tx.followStatus).label}`;
         }
-        if (tx.type === "final") return `${money(amount)} · 不计入业绩`;
+        if (tx.type === "final") {
+          const order = tx.orderId ? orderById(tx.orderId) : null;
+          return `${money(amount)} · ${order ? `${escapeHTML(order.customerName || "未命名客户")} · 已关联订单` : "未关联订单"} · 不计入业绩`;
+        }
         return money(amount);
       }
       function txItem(tx, index) {
         const meta = typeMeta[tx.type];
         const lakala = lakalaStatusForTx(tx, txModal.date);
-        return `<div class="tx-item"><span class="money">#${index}</span><span class="type-tag ${meta.className}">${meta.label}</span><strong class="money">${txText(tx)}</strong><span class="tx-check ${lakala.className}" title="${escapeHTML(lakala.title)}">${lakala.label}</span><button class="icon-btn" title="录入/修改拉卡拉流水号" data-lakala-tx="${tx.id}">💳</button><button class="icon-btn" title="删除该笔" data-delete-tx="${tx.id}">×</button></div>`;
+        const orderButton = tx.type === "deposit"
+          ? `<button class="icon-btn" title="查看订单" data-open-order="${tx.orderId || ""}">📦</button>`
+          : tx.type === "final"
+            ? `<button class="icon-btn" title="关联订单" data-link-final="${tx.id}">🔗</button>`
+            : `<span></span>`;
+        return `<div class="tx-item"><span class="money">#${index}</span><span class="type-tag ${meta.className}">${meta.label}</span><strong class="money">${txText(tx)}</strong><span class="tx-check ${lakala.className}" title="${escapeHTML(lakala.title)}">${lakala.label}</span>${orderButton}<button class="icon-btn" title="录入/修改拉卡拉流水号" data-lakala-tx="${tx.id}">💳</button><button class="icon-btn" title="删除该笔" data-delete-tx="${tx.id}">×</button></div>`;
       }
       function bindTransactionModal(focus) {
         const dateInput = $("#txDate");
@@ -1858,15 +2223,21 @@
           amountInput.focus();
         }));
         $("#txForm").addEventListener("submit", (event) => { event.preventDefault(); addTransaction(); });
+        $$("[data-open-order]").forEach((button) => button.addEventListener("click", () => { if (button.dataset.openOrder) openOrderDetail(button.dataset.openOrder); }));
+        $$("[data-link-final]").forEach((button) => button.addEventListener("click", () => openLinkFinalModal(button.dataset.linkFinal)));
         $$("[data-lakala-tx]").forEach((button) => button.addEventListener("click", () => editTransactionLakala(button.dataset.lakalaTx)));
         $$("[data-delete-tx]").forEach((button) => button.addEventListener("click", () => deleteTransaction(button.dataset.deleteTx)));
         if (focus) amountInput.focus();
       }
       function syncTxFields() {
         const isDeposit = txModal.type === "deposit";
+        const isFinal = txModal.type === "final";
         $("#txForm").classList.toggle("deposit-mode", isDeposit);
+        $("#txForm").classList.toggle("final-mode", isFinal);
         $("#txOrderField").style.display = isDeposit ? "" : "none";
         $("#txCustomerField").style.display = isDeposit ? "" : "none";
+        $("#txLinkOrderField").style.display = isFinal ? "" : "none";
+        if (isFinal) $("#txOrderId").innerHTML = finalOrderOptions(txModal.personId, txModal.orderId);
         $("#txAmountLabel").textContent = txAmountLabel();
         $("#txAmount").placeholder = txAmountPlaceholder();
       }
@@ -1876,15 +2247,24 @@
         if (!amount) { toast("请输入有效收款金额"); $("#txAmount").focus(); return; }
         let orderAmount = 0;
         let customerName = "";
+        let linkedOrderId = "";
         if (txModal.type === "deposit") {
           customerName = $("#txCustomerName").value.trim();
           orderAmount = safeNumber($("#txOrderAmount").value);
           if (!orderAmount) { toast("请输入这笔定金对应的订单金额"); $("#txOrderAmount").focus(); return; }
           if (orderAmount < amount) { toast("订单金额不能小于定金到账金额"); $("#txOrderAmount").focus(); return; }
         }
+        if (txModal.type === "final") {
+          linkedOrderId = $("#txOrderId").value || "";
+          if (linkedOrderId) {
+            const linkedOrder = orderById(linkedOrderId);
+            if (!linkedOrder || linkedOrder.personId !== txModal.personId) { toast("关联订单无效，请重新选择"); return; }
+          }
+        }
         const entry = ensureEntry(txModal.personId, txModal.date);
         const tx = { id: txId(), amount, type: txModal.type };
         tx.createdAt = nowIso();
+        tx.updatedAt = tx.createdAt;
         const lakalaLogNo = cleanLakalaLogNo($("#txLakalaLogNo").value);
         if (lakalaLogNo) tx.lakalaLogNo = lakalaLogNo;
         if (txModal.type === "deposit") {
@@ -1892,6 +2272,29 @@
           tx.customerName = customerName;
           tx.followStatus = "pending";
           tx.followUpdatedAt = tx.createdAt;
+          tx.orderId = orderId();
+          state.orders.push({
+            id: tx.orderId,
+            personId: txModal.personId,
+            depositTxId: tx.id,
+            depositDate: txModal.date,
+            customerName,
+            orderAmount,
+            dueDate: "",
+            note: "",
+            status: "pending",
+            createdAt: tx.createdAt,
+            updatedAt: tx.createdAt
+          });
+        }
+        if (txModal.type === "final" && linkedOrderId) {
+          tx.orderId = linkedOrderId;
+          const linkedOrder = orderById(linkedOrderId);
+          const linkedRecord = orderRecords(txModal.personId).find((item) => item.order.id === linkedOrderId);
+          if (linkedOrder) {
+            linkedOrder.status = linkedRecord && linkedRecord.receivedAmount + amount >= linkedRecord.orderAmount ? "closed" : "pending";
+            linkedOrder.updatedAt = tx.createdAt;
+          }
         }
         entry.transactions.push(tx);
         recalcEntry(entry);
@@ -1901,7 +2304,7 @@
           date: txModal.date,
           detail: tx.type === "deposit"
             ? `${customerName || "未命名客户"} · 定金 ${money(amount)} · 订单 ${money(orderAmount)}`
-            : `${typeMeta[tx.type].label} ${money(amount)}`
+            : `${typeMeta[tx.type].label} ${money(amount)}${linkedOrderId ? " · 已关联订单" : ""}`
         });
         saveState();
         renderAll(txModal.personId);
@@ -2121,11 +2524,11 @@
       function monthlyReceivableTable(orders) {
         if (!orders.length) return `<div class="empty" style="margin-bottom:14px;">该销售员本月没有待收尾款订单。</div>`;
         const rows = orders.map((item) => {
-          const customer = item.tx.customerName ? escapeHTML(item.tx.customerName) : "未填写客户";
+          const customer = item.order.customerName ? escapeHTML(item.order.customerName) : "未填写客户";
           const meta = followStatusMeta(item.status);
-          return `<tr><td>${customer}</td><td class="money">${item.entry.date}</td><td class="money gold">${money(item.orderAmount)}</td><td class="money blue">${money(item.amount)}</td><td class="money red">${money(item.pendingAmount)}</td><td>${meta.label}</td><td class="money">${item.days} 天</td></tr>`;
+          return `<tr><td>${customer}</td><td class="money">${item.order.depositDate}</td><td class="money gold">${money(item.orderAmount)}</td><td class="money blue">${money(item.depositAmount)}</td><td class="money green">${money(item.finalAmount)}</td><td class="money red">${money(item.pendingAmount)}</td><td>${meta.label}</td><td class="money">${item.days} 天</td></tr>`;
         }).join("");
-        return `<div class="scroll" style="margin-bottom:14px;"><table class="daily-table"><thead><tr><th>客户</th><th>定金日期</th><th>订单金额</th><th>已收定金</th><th>待收尾款</th><th>状态</th><th>等待</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        return `<div class="scroll" style="margin-bottom:14px;"><table class="daily-table"><thead><tr><th>客户</th><th>定金日期</th><th>订单金额</th><th>定金</th><th>已收尾款</th><th>待收尾款</th><th>状态</th><th>等待</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       }
       function dailyRows(personId, month) {
         return Array.from({ length: daysInMonth(month) }, (_, i) => {
@@ -2499,6 +2902,7 @@
           renderRanking();
         }));
         $("#syncBtn").addEventListener("click", openSyncModal);
+        $("#orderCenterBtn").addEventListener("click", openOrderCenter);
         $("#followBtn").addEventListener("click", () => $("#followPanel").scrollIntoView({ behavior: "smooth", block: "start" }));
         $("#activityBtn").addEventListener("click", openActivityModal);
         $("#reconcileBtn").addEventListener("click", () => openReconciliationModal(dateKey(), "shouqianba"));
