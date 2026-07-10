@@ -281,6 +281,41 @@
     .reconcile-row span { color: var(--muted); font-size: 12px; }
     .reconcile-row strong { font-family: "JetBrains Mono", monospace; }
     .reconcile-detail { color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .profile-hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(250px, .82fr); gap: 14px; margin-bottom: 16px; overflow: hidden; }
+    .profile-lead, .profile-note, .activity-bar, .activity-item { border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.36); box-shadow: var(--inner-glow); }
+    .profile-lead { position: relative; min-height: 174px; padding: 20px; overflow: hidden; }
+    .profile-lead::after { position: absolute; right: -50px; bottom: -86px; width: 250px; height: 250px; content: ""; border: 1px solid rgba(201,166,70,.18); border-radius: 50%; box-shadow: 0 0 0 24px rgba(201,166,70,.045), 0 0 0 48px rgba(201,166,70,.025); }
+    .profile-kicker { position: relative; z-index: 1; color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 900; letter-spacing: .08em; }
+    .profile-name { position: relative; z-index: 1; margin: 10px 0 3px; font-family: "Noto Serif SC", serif; font-size: 31px; font-weight: 900; }
+    .profile-account { position: relative; z-index: 1; color: var(--muted); font-size: 13px; }
+    .profile-total { position: relative; z-index: 1; margin-top: 20px; color: var(--gold); font-family: "DM Serif Display", serif; font-size: 39px; line-height: 1; }
+    .profile-caption { position: relative; z-index: 1; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .profile-note { display: flex; flex-direction: column; justify-content: space-between; padding: 18px; }
+    .profile-note strong { display: block; margin-top: 7px; color: #f8f0df; font-size: 16px; line-height: 1.55; }
+    .profile-note span { color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .profile-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .profile-metric { padding: 13px; border: 1px solid rgba(219,198,154,.13); border-radius: var(--radius); background: rgba(7,9,13,.3); }
+    .profile-metric span { display: block; color: var(--muted); font-size: 12px; }
+    .profile-metric strong { display: block; margin-top: 7px; font-family: "JetBrains Mono", monospace; font-size: 19px; }
+    .profile-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+    .profile-block { padding: 16px; border: 1px solid rgba(219,198,154,.13); border-radius: var(--radius); background: rgba(7,9,13,.28); }
+    .profile-block h3 { margin-bottom: 13px; color: #ead59a; font-size: 16px; }
+    .mix-row { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 11px; }
+    .mix-row span { color: var(--muted); font-size: 12px; }
+    .mix-row strong { color: #f4efe4; font-family: "JetBrains Mono", monospace; font-size: 13px; }
+    .mix-track { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(216,197,163,.13); }
+    .mix-track i { display: block; width: var(--w, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--green), var(--gold)); }
+    .profile-guidance { margin: 0; color: #ddd4c3; font-size: 14px; line-height: 1.85; }
+    .activity-bar { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 14px; margin-bottom: 14px; }
+    .activity-bar .field { flex: 1 1 260px; }
+    .activity-list { display: grid; gap: 9px; }
+    .activity-item { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 13px; align-items: center; padding: 12px 14px; animation: slideIn .3s cubic-bezier(.19, 1, .22, 1) both; }
+    .activity-tag { display: inline-flex; justify-content: center; padding: 5px 8px; border: 1px solid rgba(111,154,184,.28); border-radius: 999px; color: #c8d6dc; background: rgba(111,154,184,.1); font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .activity-tag.danger { color: #efc0bd; border-color: rgba(177,91,100,.32); background: rgba(177,91,100,.12); }
+    .activity-copy { min-width: 0; }
+    .activity-copy strong { display: block; color: var(--text); font-size: 14px; }
+    .activity-copy span { display: block; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .activity-time { color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 11px; text-align: right; white-space: nowrap; }
     .modal-layer { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(5,7,10,.76); backdrop-filter: blur(18px) saturate(.92); }
     .modal-layer.open { display: flex; }
     .modal { width: min(980px, 100%); max-height: min(88vh, 920px); overflow: hidden; border: 1px solid rgba(201,166,70,.24); border-radius: var(--radius); background: linear-gradient(180deg, rgba(25,29,36,.98), rgba(9,12,16,.98)); box-shadow: 0 34px 110px rgba(0,0,0,.58), var(--inner-glow); animation: modalIn .34s cubic-bezier(.19, 1, .22, 1) forwards; }
@@ -348,6 +383,9 @@
     @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-layout { grid-template-columns: 1fr; } .follow-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-list { grid-template-columns: repeat(2, minmax(220px, 1fr)); } .monthly-board-list { grid-template-columns: repeat(4, minmax(150px, 1fr)); } }
     @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions, .toolbar-left { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px 38px; } .tx-check { grid-column: 3 / -1; } }
     @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } .reconcile-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 1180px) { .profile-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .profile-hero, .profile-grid { grid-template-columns: 1fr; } .activity-item { grid-template-columns: 1fr; gap: 7px; } .activity-time { text-align: left; } }
+    @media (max-width: 520px) { .profile-metrics { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -386,6 +424,7 @@
           </div>
         </div>
         <div class="actions">
+          <button type="button" class="btn" id="activityBtn">📜 操作记录</button>
           <button type="button" class="btn cloud" id="syncBtn">☁️ 云端同步</button>
           <button type="button" class="btn" id="followBtn">🧾 待收尾款</button>
           <button type="button" class="btn" id="reconcileBtn">🧮 收钱吧对账</button>
@@ -471,6 +510,8 @@
 
       const STORAGE_KEY = "yuanpeng_a1_sales_dashboard_v1";
       const SYNC_CONFIG_KEY = "yuanpeng_a1_supabase_config_v1";
+      const OPERATOR_NAME_KEY = "yuanpeng_a1_operator_name_v1";
+      const ACTIVITY_LOG_LIMIT = 240;
       const SUPABASE_TABLE = "sales_dashboard_state";
       const CLOUD_ROW_ID = "yuanpeng_a1";
       const EMBEDDED_SUPABASE_CONFIG = {
@@ -519,6 +560,7 @@
       let realtimeChannel = null;
       let authSubscription = null;
       let currentUser = null;
+      let operatorName = loadOperatorName();
       let remoteSaveTimer = 0;
       let remoteReady = false;
       let applyingRemote = false;
@@ -599,6 +641,59 @@
         }, item.updatedAt || "");
         return normalized;
       }
+      function loadOperatorName() {
+        try { return String(localStorage.getItem(OPERATOR_NAME_KEY) || "").trim().slice(0, 24); }
+        catch { return ""; }
+      }
+      function setOperatorName(value) {
+        operatorName = String(value || "").trim().slice(0, 24);
+        try {
+          if (operatorName) localStorage.setItem(OPERATOR_NAME_KEY, operatorName);
+          else localStorage.removeItem(OPERATOR_NAME_KEY);
+        } catch { /* Local storage may be unavailable in restricted browsers. */ }
+      }
+      function currentOperatorName() { return operatorName || "未署名终端"; }
+      function normalizeActivityLog(list) {
+        const seen = new Map();
+        (Array.isArray(list) ? list : []).forEach((item, index) => {
+          if (!item || typeof item !== "object") return;
+          const at = typeof item.at === "string" && !Number.isNaN(new Date(item.at).getTime()) ? item.at : nowIso();
+          const action = String(item.action || "数据更新").trim().slice(0, 40);
+          const detail = String(item.detail || "").trim().slice(0, 220);
+          const id = String(item.id || `legacy_${at}_${action}_${index}`).slice(0, 120);
+          if (seen.has(id)) return;
+          seen.set(id, {
+            id,
+            at,
+            action,
+            actor: String(item.actor || "未署名终端").trim().slice(0, 24),
+            personId: String(item.personId || "").trim().slice(0, 12),
+            date: /^\d{4}-\d{2}-\d{2}$/.test(item.date || "") ? item.date : "",
+            detail
+          });
+        });
+        return Array.from(seen.values())
+          .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+          .slice(0, ACTIVITY_LOG_LIMIT);
+      }
+      function recordActivity(action, options = {}) {
+        const person = options.personId ? getPerson(options.personId) : null;
+        const item = {
+          id: `act_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+          at: nowIso(),
+          action,
+          actor: currentOperatorName(),
+          personId: options.personId || "",
+          date: options.date || "",
+          detail: options.detail || (person ? person.name : "")
+        };
+        state.activityLog = normalizeActivityLog([item, ...(state.activityLog || [])]);
+      }
+      function formatActivityTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "--";
+        return date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+      }
       function savedReconciliation(day, provider = "shouqianba", sourceState = state) {
         const item = sourceState.reconciliations && sourceState.reconciliations[day]
           ? normalizeReconciliationItem(day, sourceState.reconciliations[day])
@@ -624,7 +719,7 @@
         const entries = {};
         const goals = {};
         people.forEach((person) => { entries[person.id] = []; goals[person.id] = 50000; });
-        return { entries, goals, reconciliations: {}, meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} } };
+        return { entries, goals, reconciliations: {}, activityLog: [], meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} } };
       }
 
       function loadState() {
@@ -652,6 +747,7 @@
             next.reconciliations[day] = normalizeReconciliationItem(day, item);
           });
         }
+        next.activityLog = normalizeActivityLog(input.activityLog);
         next.meta = {
           goals: input.meta && input.meta.goals && typeof input.meta.goals === "object" ? input.meta.goals : {},
           entries: input.meta && input.meta.entries && typeof input.meta.entries === "object" ? input.meta.entries : {},
@@ -735,6 +831,7 @@
 
       function cleanupEntries() {
         state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
+        state.activityLog = normalizeActivityLog(state.activityLog);
         applyDeletedMarkers(state);
         people.forEach((person) => {
           state.entries[person.id] = (state.entries[person.id] || [])
@@ -819,6 +916,7 @@
         const remote = normalizeState(remoteInput || defaultState());
         const local = normalizeState(localInput || defaultState());
         const merged = defaultState();
+        merged.activityLog = normalizeActivityLog([...(remote.activityLog || []), ...(local.activityLog || [])]);
         merged.meta = {
           goals: { ...(remote.meta && remote.meta.goals ? remote.meta.goals : {}), ...(local.meta && local.meta.goals ? local.meta.goals : {}) },
           entries: { ...(remote.meta && remote.meta.entries ? remote.meta.entries : {}), ...(local.meta && local.meta.entries ? local.meta.entries : {}) },
@@ -1074,7 +1172,7 @@
             <td>${progressBlock(progress, goal)}</td>
             <td class="money ${dailyNeed > 0 ? "red" : "green"}">${money(dailyNeed)}</td>
             <td>${streak >= 2 ? `<span class="streak">🔥 ${streak}</span>` : `<span class="money">${streak}</span>`}</td>
-            <td><div class="icon-row"><button class="icon-btn" data-action="details" data-person="${person.id}" title="月度详情">📊</button><button class="icon-btn" data-action="tx" data-person="${person.id}" title="录入成交">💰</button></div></td>
+            <td><div class="icon-row"><button class="icon-btn" data-action="profile" data-person="${person.id}" title="销售画像">🪪</button><button class="icon-btn" data-action="details" data-person="${person.id}" title="月度详情">📊</button><button class="icon-btn" data-action="tx" data-person="${person.id}" title="录入成交">💰</button></div></td>
           </tr>
         `;
       }
@@ -1232,6 +1330,11 @@
           return true;
         }));
         if (!changed) return;
+        recordActivity("更新尾款跟进", {
+          personId: changed.person.id,
+          date: changed.entry.date,
+          detail: `${changed.tx.customerName || "未命名客户"} · ${followStatusMeta(status).label} · 待收 ${money(Math.max(safeNumber(changed.tx.orderAmount) - safeNumber(changed.tx.amount), 0))}`
+        });
         saveState();
         pushRemoteState();
         renderAll(changed.person.id);
@@ -1495,6 +1598,7 @@
           const day = dateInput.value || dateKey();
           if (!confirm(`确认清空 ${day} 已保存的${providerMeta.label}金额？`)) return;
           putReconciliation(day, providerKey, []);
+          recordActivity("清空对账数据", { date: day, detail: `${providerMeta.label} · ${day}` });
           saveState();
           textInput.value = "";
           hydrate();
@@ -1505,6 +1609,7 @@
           const day = dateInput.value || dateKey();
           const parsed = parseCurrent();
           putReconciliation(day, providerKey, parsed.amounts, parsed.records);
+          recordActivity("保存对账数据", { date: day, detail: `${providerMeta.label} · ${parsed.amounts.length} 笔金额` });
           saveState();
           renderReconciliationResult(day, parsed.amounts, providerKey, parsed.records);
           toast(`${providerMeta.label}对账数据已保存`);
@@ -1594,6 +1699,7 @@
           const mergedRecords = mergePaymentRecords(currentRecords, apiRecords);
           const amounts = mergedRecords.map((record) => record.amount);
           putReconciliation(day, "lakala", amounts, mergedRecords);
+          recordActivity("拉卡拉自动核验", { date: day, detail: `${apiRecords.length} 笔流水已写入对账` });
           saveState();
           textInput.value = formatLakalaRecords(mergedRecords);
           renderReconciliationResult(day, amounts, "lakala", mergedRecords);
@@ -1790,6 +1896,13 @@
         entry.transactions.push(tx);
         recalcEntry(entry);
         markEntryUpdated(txModal.personId, txModal.date);
+        recordActivity("新增收款", {
+          personId: txModal.personId,
+          date: txModal.date,
+          detail: tx.type === "deposit"
+            ? `${customerName || "未命名客户"} · 定金 ${money(amount)} · 订单 ${money(orderAmount)}`
+            : `${typeMeta[tx.type].label} ${money(amount)}`
+        });
         saveState();
         renderAll(txModal.personId);
         renderTransactionModal(true);
@@ -1807,6 +1920,11 @@
         if (value) tx.lakalaLogNo = value;
         else delete tx.lakalaLogNo;
         markEntryUpdated(txModal.personId, txModal.date);
+        recordActivity(value ? "填写拉卡拉流水号" : "清除拉卡拉流水号", {
+          personId: txModal.personId,
+          date: txModal.date,
+          detail: `${typeMeta[tx.type].label} ${money(tx.amount)}${value ? ` · ${value}` : ""}`
+        });
         saveState();
         renderAll(txModal.personId);
         renderTransactionModal(false);
@@ -1823,6 +1941,11 @@
         entry.transactions = entry.transactions.filter((item) => item.id !== id);
         recalcEntry(entry);
         markEntryUpdated(txModal.personId, txModal.date);
+        recordActivity("删除收款", {
+          personId: txModal.personId,
+          date: txModal.date,
+          detail: `${typeMeta[tx.type].label} ${money(tx.amount)}${tx.customerName ? ` · ${tx.customerName}` : ""}`
+        });
         saveState();
         pushRemoteState();
         renderAll(txModal.personId);
@@ -1830,6 +1953,119 @@
         toast("成交明细已删除");
       }
 
+      function profileActiveDays(personId, month) {
+        return (state.entries[personId] || []).filter((entry) => {
+          if (!entry.date.startsWith(month)) return false;
+          const metrics = summarizeEntry(entry);
+          return metrics.total > 0 || metrics.cashReceived > 0;
+        }).length;
+      }
+      function profileTopDay(personId, month) {
+        const rows = (state.entries[personId] || [])
+          .filter((entry) => entry.date.startsWith(month))
+          .map((entry) => ({ date: entry.date, total: summarizeEntry(entry).total }));
+        return rows.sort((a, b) => b.total - a.total || b.date.localeCompare(a.date))[0] || { date: "", total: 0 };
+      }
+      function profileGuidance(monthly, goal, receivable, activeDays) {
+        if (receivable.pendingAmount > 0) {
+          return `先处理 ${receivable.count} 笔待收尾款，合计 ${money(receivable.pendingAmount)}。已提醒和逾期订单优先跟进，回款节奏会更稳。`;
+        }
+        if (goal && monthly.total < goal) {
+          const need = dailyNeeded(monthly.total, goal);
+          return `本月距离目标还差 ${money(goal - monthly.total)}，当前日均还需 ${money(need)}。建议优先提高定金订单和全款成交的数量。`;
+        }
+        if (!activeDays) return "本月暂未形成成交记录。先从一笔可追踪的定金或全款开始录入，后续画像会自动生成。";
+        return "当前目标已覆盖，保持成交记录、尾款跟进和拉卡拉对账的一致性，方便月底复盘。";
+      }
+      function profileMixRow(label, value, total) {
+        const ratio = total ? Math.min((value / total) * 100, 100) : 0;
+        return `<div class="mix-row"><span>${label}</span><div class="mix-track"><i style="--w:${ratio}%"></i></div><strong>${money(value)}</strong></div>`;
+      }
+      function openSalesProfile(personId) {
+        const person = getPerson(personId);
+        if (!person) return;
+        const month = activeMonth();
+        const monthly = monthMetrics(personId, month);
+        const goal = safeNumber(state.goals[personId]);
+        const rank = monthlyRankInfo(personId, month);
+        const receivable = receivableMetrics(personId, month);
+        const teamTotal = rank.teamTotal;
+        const share = teamTotal ? (monthly.total / teamTotal) * 100 : 0;
+        const activeDays = profileActiveDays(personId, month);
+        const topDay = profileTopDay(personId, month);
+        const orderCount = monthly.fullCount + monthly.depositCount;
+        const dailyAverage = activeDays ? monthly.total / activeDays : 0;
+        const heroNote = rank.rank === 1 ? "本月暂居团队第一" : `本月团队第 ${rank.rank || "--"} 名`;
+        const body = `
+          <section class="profile-hero">
+            <div class="profile-lead">
+              <div class="profile-kicker">${month} · 个人销售画像</div>
+              <div class="profile-name">${escapeHTML(person.name)}</div>
+              <div class="profile-account">${escapeHTML(person.account)} · ${heroNote}</div>
+              <div class="profile-total">${money(monthly.total)}</div>
+              <div class="profile-caption">月度实际成交 · 团队贡献 ${percent(share)}</div>
+            </div>
+            <div class="profile-note">
+              <div><span>本月经营建议</span><strong>${escapeHTML(profileGuidance(monthly, goal, receivable, activeDays))}</strong></div>
+              <span>数据按当前所选月份自动汇总，不会改变原始业绩记录。</span>
+            </div>
+          </section>
+          <section class="profile-metrics">
+            <div class="profile-metric"><span>月度排名</span><strong>NO.${rank.rank || "--"}</strong></div>
+            <div class="profile-metric"><span>销售订单</span><strong>${orderCount} 笔</strong></div>
+            <div class="profile-metric"><span>出单天数</span><strong>${activeDays} 天</strong></div>
+            <div class="profile-metric"><span>待收尾款</span><strong class="${receivable.pendingAmount ? "red" : "green"}">${money(receivable.pendingAmount)}</strong></div>
+          </section>
+          <section class="profile-grid">
+            <div class="profile-block">
+              <h3>回款构成</h3>
+              ${profileMixRow("全款", monthly.fullPayment, monthly.cashReceived)}
+              ${profileMixRow("定金", monthly.deposit, monthly.cashReceived)}
+              ${profileMixRow("尾款", monthly.finalPayment, monthly.cashReceived)}
+              <p class="profile-guidance" style="margin-top:16px;">本月已收实款 ${money(monthly.cashReceived)}；定金订单的业绩按订单金额计入，尾款只计回款，不计实际成交。</p>
+            </div>
+            <div class="profile-block">
+              <h3>成交节奏</h3>
+              <div class="mix-row"><span>最高单日</span><div></div><strong>${topDay.date ? `${topDay.date.slice(5)} · ${money(topDay.total)}` : "暂无"}</strong></div>
+              <div class="mix-row"><span>出单日均</span><div></div><strong>${money(dailyAverage)}</strong></div>
+              <div class="mix-row"><span>目标进度</span><div class="mix-track"><i style="--w:${Math.min(goal ? (monthly.total / goal) * 100 : 0, 100)}%"></i></div><strong>${goal ? percent((monthly.total / goal) * 100) : "未设目标"}</strong></div>
+              <p class="profile-guidance" style="margin-top:16px;">${escapeHTML(profileGuidance(monthly, goal, receivable, activeDays))}</p>
+            </div>
+          </section>
+        `;
+        openModal(modalShell(`${escapeHTML(person.name)} · 销售画像`, `${month} 的成交、回款与待收尾款节奏`, body, "wide"));
+      }
+      function activityTagClass(action) { return /删除|重置|清空/.test(action) ? "danger" : ""; }
+      function activityDescription(item) {
+        const person = item.personId ? getPerson(item.personId) : null;
+        const parts = [item.actor || "未署名终端"];
+        if (person) parts.push(person.name);
+        if (item.date) parts.push(item.date);
+        if (item.detail) parts.push(item.detail);
+        return parts.join(" · ");
+      }
+      function renderActivityItems() {
+        const logs = normalizeActivityLog(state.activityLog);
+        if (!logs.length) return `<div class="empty">暂时还没有操作记录。之后新增、删除、目标修改、尾款跟进和对账保存都会自动留痕。</div>`;
+        return `<div class="activity-list">${logs.map((item) => `<article class="activity-item"><span class="activity-tag ${activityTagClass(item.action)}">${escapeHTML(item.action)}</span><div class="activity-copy"><strong>${escapeHTML(activityDescription(item))}</strong><span>${escapeHTML(item.detail || "已同步到团队数据")}</span></div><time class="activity-time">${formatActivityTime(item.at)}</time></article>`).join("")}</div>`;
+      }
+      function openActivityModal() {
+        const logs = normalizeActivityLog(state.activityLog);
+        const body = `
+          <div class="activity-bar">
+            <div class="field"><label for="operatorName">本机操作人</label><input id="operatorName" maxlength="24" value="${escapeHTML(operatorName)}" placeholder="例如：袁鹏 / 前台电脑"></div>
+            <button type="button" class="btn primary" id="saveOperatorBtn">保存署名</button>
+          </div>
+          <p class="hint" style="margin-top:0;margin-bottom:14px;">操作人只用于团队协作留痕，不需要登录，也不会限制任何成员录入。记录会随云端同步；旧数据不会凭空补出历史操作人。</p>
+          <div id="activityList">${renderActivityItems()}</div>
+        `;
+        openModal(modalShell("操作记录", `最近 ${logs.length} 条团队操作`, body, "wide"), () => {
+          $("#saveOperatorBtn").addEventListener("click", () => {
+            setOperatorName($("#operatorName").value);
+            toast(operatorName ? `本机署名已设为：${operatorName}` : "本机署名已清除");
+          });
+        });
+      }
       function openGoalsModal() {
         if (!requireEdit()) return;
         const body = `<form id="goalsForm"><div class="goal-grid">${people.map((person) => `<div class="field"><label for="goal-${person.id}">${person.name}</label><input type="number" id="goal-${person.id}" data-goal="${person.id}" min="0" step="100" value="${safeNumber(state.goals[person.id])}"></div>`).join("")}</div><div class="modal-actions"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">保存目标</button></div></form>`;
@@ -1840,6 +2076,7 @@
               state.goals[input.dataset.goal] = safeNumber(input.value);
               markGoalUpdated(input.dataset.goal);
             });
+            recordActivity("更新月度目标", { date: `${activeMonth()}-01`, detail: `${activeMonth()} · 已保存团队月度目标` });
             saveState();
             closeModal();
             renderAll();
@@ -1909,6 +2146,7 @@
           markDayDeleted(personId, day);
           removeEntry(personId, day);
           markEntryUpdated(personId, day);
+          recordActivity("删除整日数据", { personId, date: day, detail: `${day} 的成交明细与收款记录` });
           saveState();
           pushRemoteState();
           renderAll(personId);
@@ -1928,6 +2166,7 @@
           });
           state.entries[person.id] = (state.entries[person.id] || []).filter((entry) => !entry.date.startsWith(month));
         });
+        recordActivity("月度重置", { date: `${month}-01`, detail: `已清空 ${month} 的全部业绩数据` });
         saveState();
         pushRemoteState();
         renderAll();
@@ -2261,6 +2500,7 @@
         }));
         $("#syncBtn").addEventListener("click", openSyncModal);
         $("#followBtn").addEventListener("click", () => $("#followPanel").scrollIntoView({ behavior: "smooth", block: "start" }));
+        $("#activityBtn").addEventListener("click", openActivityModal);
         $("#reconcileBtn").addEventListener("click", () => openReconciliationModal(dateKey(), "shouqianba"));
         $("#lakalaReconcileBtn").addEventListener("click", () => openReconciliationModal(dateKey(), "lakala"));
         $("#monthPicker").addEventListener("change", (event) => {
@@ -2278,6 +2518,7 @@
           const action = event.target.closest("[data-action]");
           if (action) {
             const personId = action.dataset.person;
+            if (action.dataset.action === "profile") openSalesProfile(personId);
             if (action.dataset.action === "details") openMonthlyDetail(personId);
             if (action.dataset.action === "tx") openTransactionModal(personId);
             return;
