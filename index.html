@@ -1113,6 +1113,44 @@
         const deletedAt = targetState.meta && targetState.meta.deletedDays ? targetState.meta.deletedDays[key] || "" : "";
         return Boolean(deletedAt) && !strictlyNewerTime(entryUpdatedAt(targetState, personId, entry), deletedAt);
       }
+      function applySyncRecoveryRecords(targetState) {
+        const recoveries = normalizeActivityLog(targetState.activityLog).filter((item) => /^sync-recovery\|full\|\d+(?:\.\d+)?$/.test(item.detail) && item.personId && item.date);
+        if (!recoveries.length) return false;
+        targetState.meta = targetState.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} };
+        targetState.meta.entries = targetState.meta.entries || {};
+        targetState.meta.deletedDays = targetState.meta.deletedDays || {};
+        let changed = false;
+        recoveries.forEach((item) => {
+          const [, , amountText] = item.detail.split("|");
+          const amount = safeNumber(amountText);
+          const person = getPerson(item.personId);
+          if (!person || !amount) return;
+          const key = entryMetaKey(item.personId, item.date);
+          const deletedAt = targetState.meta.deletedDays[key] || "";
+          if (deletedAt && !strictlyNewerTime(item.at, deletedAt)) return;
+          let entry = (targetState.entries[item.personId] || []).find((candidate) => candidate.date === item.date);
+          if (!entry) {
+            entry = { date: item.date, privateCount: 0, dealsCount: 0, deposit: 0, depositOrderAmount: 0, finalPayment: 0, fullPayment: 0, performanceTotal: 0, transactions: [] };
+            targetState.entries[item.personId] = targetState.entries[item.personId] || [];
+            targetState.entries[item.personId].push(entry);
+            changed = true;
+          }
+          entry.transactions = entry.transactions || [];
+          const recoveryTxId = `tx_recovery_${item.id}`;
+          const alreadyRecovered = entry.transactions.some((tx) => tx.id === recoveryTxId || (tx.type === "full" && safeNumber(tx.amount) === amount));
+          if (!alreadyRecovered) {
+            entry.transactions.push({ id: recoveryTxId, amount, type: "full", createdAt: item.at, updatedAt: item.at });
+            changed = true;
+          }
+          if (strictlyNewerTime(item.at, targetState.meta.entries[key] || "")) targetState.meta.entries[key] = item.at;
+          if (targetState.meta.deletedDays[key]) {
+            delete targetState.meta.deletedDays[key];
+            changed = true;
+          }
+          recalcEntry(entry);
+        });
+        return changed;
+      }
 
       function mergeStates(remoteInput, localInput) {
         const remote = normalizeState(remoteInput || defaultState());
@@ -2550,6 +2588,7 @@
         openModal(modalShell(`${escapeHTML(person.name)} · 销售画像`, `${month} 的成交、回款与待收尾款节奏`, body, "wide"));
       }
       function activityTagClass(action) { return /删除|重置|清空/.test(action) ? "danger" : ""; }
+      function activityLabel(action) { return action === "data_repair" ? "同步修复" : action; }
       function activityDescription(item) {
         const person = item.personId ? getPerson(item.personId) : null;
         const parts = [item.actor || "未署名终端"];
@@ -2561,7 +2600,7 @@
       function renderActivityItems() {
         const logs = normalizeActivityLog(state.activityLog);
         if (!logs.length) return `<div class="empty">暂时还没有操作记录。之后新增、删除、目标修改、尾款跟进和对账保存都会自动留痕。</div>`;
-        return `<div class="activity-list">${logs.map((item) => `<article class="activity-item"><span class="activity-tag ${activityTagClass(item.action)}">${escapeHTML(item.action)}</span><div class="activity-copy"><strong>${escapeHTML(activityDescription(item))}</strong><span>${escapeHTML(item.detail || "已同步到团队数据")}</span></div><time class="activity-time">${formatActivityTime(item.at)}</time></article>`).join("")}</div>`;
+        return `<div class="activity-list">${logs.map((item) => `<article class="activity-item"><span class="activity-tag ${activityTagClass(item.action)}">${escapeHTML(activityLabel(item.action))}</span><div class="activity-copy"><strong>${escapeHTML(activityDescription(item))}</strong><span>${escapeHTML(item.detail || "已同步到团队数据")}</span></div><time class="activity-time">${formatActivityTime(item.at)}</time></article>`).join("")}</div>`;
       }
       function openActivityModal() {
         const logs = normalizeActivityLog(state.activityLog);
@@ -2922,8 +2961,10 @@
         if (data && data.data) {
           applyingRemote = true;
           state = mergeStates(data.data, state);
+          const recovered = applySyncRecoveryRecords(state);
           saveState({ remote: false });
           applyingRemote = false;
+          if (recovered) queueRemoteSave();
           renderAll();
         } else {
           await pushRemoteState();
@@ -2937,8 +2978,10 @@
             if (!payload.new || !payload.new.data) return;
             applyingRemote = true;
             state = mergeStates(payload.new.data, state);
+            const recovered = applySyncRecoveryRecords(state);
             saveState({ remote: false });
             applyingRemote = false;
+            if (recovered) queueRemoteSave();
             renderAll();
             toast("云端数据已更新");
           })
@@ -2971,10 +3014,11 @@
         }
         if (latest.data && latest.data.data) {
           mergedState = mergeStates(latest.data.data, state);
-          state = mergedState;
-          persistLocalState();
-          renderAll();
         }
+        applySyncRecoveryRecords(mergedState);
+        state = mergedState;
+        persistLocalState();
+        renderAll();
         const { error } = await supabaseClient.from(SUPABASE_TABLE).upsert({
           id: CLOUD_ROW_ID,
           data: mergedState,
