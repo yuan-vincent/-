@@ -1037,7 +1037,10 @@
       function markEntryUpdated(personId, day) {
         state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
         state.meta.entries = state.meta.entries || {};
-        state.meta.entries[entryMetaKey(personId, day)] = nowIso();
+        state.meta.deletedDays = state.meta.deletedDays || {};
+        const key = entryMetaKey(personId, day);
+        state.meta.entries[key] = nowIso();
+        delete state.meta.deletedDays[key];
       }
       function markGoalUpdated(personId) {
         state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
@@ -1063,10 +1066,9 @@
 
       function applyDeletedMarkers(targetState) {
         const deletedTx = targetState.meta && targetState.meta.deletedTx ? targetState.meta.deletedTx : {};
-        const deletedDays = targetState.meta && targetState.meta.deletedDays ? targetState.meta.deletedDays : {};
         people.forEach((person) => {
           targetState.entries[person.id] = (targetState.entries[person.id] || [])
-            .filter((entry) => !deletedDays[entryMetaKey(person.id, entry.date)])
+            .filter((entry) => !isEntryDeleted(targetState, person.id, entry))
             .map((entry) => {
               entry.transactions = (entry.transactions || []).filter((tx) => !deletedTx[tx.id]);
               return recalcEntry(entry);
@@ -1090,8 +1092,26 @@
         return { privateCount: 0, dealsCount: 0, deposit: 0, depositOrderAmount: 0, finalPayment: 0, fullPayment: 0, total: 0, cashReceived: 0, fullCount: 0, depositCount: 0, finalCount: 0, transactionCount: 0 };
       }
 
-      function newerTime(a, b) {
-        return new Date(a || 0).getTime() >= new Date(b || 0).getTime();
+      function timestampMs(value) {
+        const timestamp = new Date(value || 0).getTime();
+        return Number.isFinite(timestamp) ? timestamp : 0;
+      }
+      function newerTime(a, b) { return timestampMs(a) >= timestampMs(b); }
+      function strictlyNewerTime(a, b) { return Boolean(a) && timestampMs(a) > timestampMs(b); }
+      function newestTime(a, b) { return newerTime(b, a) ? b : a; }
+      function entryUpdatedAt(targetState, personId, entry) {
+        const key = entryMetaKey(personId, entry.date);
+        let latest = targetState.meta && targetState.meta.entries ? targetState.meta.entries[key] || "" : "";
+        (entry.transactions || []).forEach((tx) => {
+          const stamp = tx.updatedAt || tx.followUpdatedAt || tx.createdAt || "";
+          if (strictlyNewerTime(stamp, latest)) latest = stamp;
+        });
+        return latest;
+      }
+      function isEntryDeleted(targetState, personId, entry) {
+        const key = entryMetaKey(personId, entry.date);
+        const deletedAt = targetState.meta && targetState.meta.deletedDays ? targetState.meta.deletedDays[key] || "" : "";
+        return Boolean(deletedAt) && !strictlyNewerTime(entryUpdatedAt(targetState, personId, entry), deletedAt);
       }
 
       function mergeStates(remoteInput, localInput) {
@@ -1107,6 +1127,19 @@
           deletedDays: { ...(remote.meta && remote.meta.deletedDays ? remote.meta.deletedDays : {}), ...(local.meta && local.meta.deletedDays ? local.meta.deletedDays : {}) },
           reconciliations: { ...(remote.meta && remote.meta.reconciliations ? remote.meta.reconciliations : {}), ...(local.meta && local.meta.reconciliations ? local.meta.reconciliations : {}) }
         };
+
+        const entryMetaKeys = new Set([...Object.keys(remote.meta.entries || {}), ...Object.keys(local.meta.entries || {})]);
+        entryMetaKeys.forEach((key) => {
+          const latest = newestTime(remote.meta.entries[key] || "", local.meta.entries[key] || "");
+          if (latest) merged.meta.entries[key] = latest;
+        });
+        const deletedDayKeys = new Set([...Object.keys(remote.meta.deletedDays || {}), ...Object.keys(local.meta.deletedDays || {})]);
+        deletedDayKeys.forEach((key) => {
+          const deletedAt = newestTime(remote.meta.deletedDays[key] || "", local.meta.deletedDays[key] || "");
+          const entryAt = merged.meta.entries[key] || "";
+          if (strictlyNewerTime(entryAt, deletedAt)) delete merged.meta.deletedDays[key];
+          else if (deletedAt) merged.meta.deletedDays[key] = deletedAt;
+        });
 
         const reconDays = new Set([...Object.keys(remote.reconciliations || {}), ...Object.keys(local.reconciliations || {})]);
         reconDays.forEach((day) => {
@@ -1141,7 +1174,7 @@
 
           const byDate = new Map();
           [...(remote.entries[person.id] || []), ...(local.entries[person.id] || [])].forEach((entry) => {
-            if (merged.meta.deletedDays[entryMetaKey(person.id, entry.date)]) return;
+            if (isEntryDeleted(merged, person.id, entry)) return;
             const existing = byDate.get(entry.date);
             if (!existing) byDate.set(entry.date, normalizeEntry(entry));
             else byDate.set(entry.date, mergeEntries(person.id, existing, entry, remote.meta, local.meta, merged.meta));
