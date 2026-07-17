@@ -371,6 +371,10 @@
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
     .hint { margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
     .summary-card { padding: 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.34); box-shadow: var(--inner-glow); }
+    button.summary-card { width: 100%; color: inherit; font: inherit; text-align: left; }
+    .summary-card.actionable { cursor: pointer; transition: transform .24s ease, border-color .24s ease, background .24s ease, box-shadow .24s ease; }
+    .summary-card.actionable:hover { transform: translateY(-3px); border-color: rgba(201,166,70,.56); background: rgba(201,166,70,.11); box-shadow: 0 16px 34px rgba(0,0,0,.28); }
+    .summary-card.actionable:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
     .summary-card.full { border-color: rgba(212,175,55,.34); background: rgba(212,175,55,.09); }
     .summary-card.deposit { border-color: rgba(59,130,246,.34); background: rgba(59,130,246,.09); }
     .summary-card.final { border-color: rgba(16,185,129,.34); background: rgba(16,185,129,.09); }
@@ -378,6 +382,14 @@
     .summary-label { margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 900; }
     .summary-value { margin: 0; font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 900; word-break: break-word; }
     .summary-small { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .tail-collect-link { display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; margin: -5px -7px; border-radius: 7px; color: var(--rose); font-family: "JetBrains Mono", monospace; font-weight: 900; transition: color .2s ease, background .2s ease, transform .2s ease; }
+    .tail-collect-link:hover { color: #ffd2d7; background: rgba(177,91,100,.16); transform: translateY(-1px); }
+    .tail-collect-link::after { content: "收款"; color: var(--muted); font-family: "Noto Sans SC", sans-serif; font-size: 11px; font-weight: 800; }
+    .tail-collect-list { display: flex; flex-direction: column; gap: 9px; }
+    .tail-collect-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 14px; border: 1px solid rgba(219,198,154,.14); border-radius: var(--radius); background: rgba(7,9,13,.42); }
+    .tail-collect-row strong { color: var(--text); }
+    .tail-collect-row span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .tail-collect-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; white-space: nowrap; }
     .tx-entry { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(170px, .9fr) auto auto; gap: 10px; align-items: end; margin-bottom: 16px; padding: 14px; border: 1px solid rgba(219,198,154,.13); border-radius: var(--radius); background: rgba(7,9,13,.32); }
     .tx-entry.deposit-mode { grid-template-columns: minmax(120px, .8fr) minmax(130px, .8fr) minmax(170px, 1fr) minmax(170px, .9fr) auto auto; }
     .type-toggle { display: inline-flex; gap: 6px; padding: 4px; border: 1px solid rgba(219,198,154,.16); border-radius: var(--radius); background: rgba(7,9,13,.46); }
@@ -592,7 +604,7 @@
       let sortMode = "today";
       let selectedMonth = dateKey().slice(0, 7);
       let flashPersonId = "";
-      let txModal = { personId: "", date: "", type: "full" };
+      let txModal = { personId: "", date: "", type: "full", orderId: "", suggestedAmount: 0 };
       let syncConfig = loadSyncConfig();
       let supabaseClient = null;
       let realtimeChannel = null;
@@ -2149,7 +2161,7 @@
           </div>
         `;
         openModal(modalShell(`${escapeHTML(order.customerName || "未命名客户")} · 订单详情`, `${escapeHTML(person.name)} · 定金 ${record.entry.date} · ${orderStatusBadge(record.status)}`, body, "wide"), () => {
-          $("#recordFinalBtn").addEventListener("click", () => openTransactionModal(order.personId, dateKey(), true, order.id));
+          $("#recordFinalBtn").addEventListener("click", () => openTransactionModal(order.personId, dateKey(), true, order.id, record.pendingAmount));
           $("#attachFinalBtn").addEventListener("click", () => attachFinalToOrder($("#attachFinalTx").value, order.id));
           $("#orderForm").addEventListener("submit", (event) => {
             event.preventDefault();
@@ -2229,8 +2241,14 @@
           });
         });
       }
-      function openTransactionModal(personId, day = dateKey(), fresh = true, linkedOrderId = "") {
-        txModal = { personId, date: day, type: fresh ? (linkedOrderId ? "final" : "full") : (txModal.type || "full"), orderId: linkedOrderId || (fresh ? "" : (txModal.orderId || "")) };
+      function openTransactionModal(personId, day = dateKey(), fresh = true, linkedOrderId = "", suggestedAmount = 0) {
+        txModal = {
+          personId,
+          date: day,
+          type: fresh ? (linkedOrderId ? "final" : "full") : (txModal.type || "full"),
+          orderId: linkedOrderId || (fresh ? "" : (txModal.orderId || "")),
+          suggestedAmount: fresh ? safeNumber(suggestedAmount) : safeNumber(txModal.suggestedAmount)
+        };
         renderTransactionModal(true);
       }
       function renderTransactionModal(focus = false) {
@@ -2248,10 +2266,10 @@
             <div class="summary-card total"><p class="summary-label">当日实际成交</p><p class="summary-value">${money(metrics.total)}</p><p class="summary-small">${metrics.transactionCount} 笔</p></div>
           </div>
           <form class="tx-entry ${txModal.type === "deposit" ? "deposit-mode" : txModal.type === "final" ? "final-mode" : ""}" id="txForm">
-            <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
+            <div class="field"><label id="txAmountLabel" for="txAmount">${txAmountLabel()}</label><input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" value="${txModal.suggestedAmount ? safeNumber(txModal.suggestedAmount) : ""}" placeholder="${txAmountPlaceholder()}" autocomplete="off"></div>
             <div class="field" id="txCustomerField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txCustomerName">客户姓名</label><input type="text" id="txCustomerName" maxlength="24" placeholder="例：张先生 / 王女士" autocomplete="off"></div>
             <div class="field" id="txOrderField" style="${txModal.type === "deposit" ? "" : "display:none;"}"><label for="txOrderAmount">订单金额（计入实际成交）</label><input type="number" id="txOrderAmount" inputmode="decimal" min="0" step="0.01" placeholder="例：订单2400，定金400，这里填2400"></div>
-            <div class="field" id="txLinkOrderField" style="${txModal.type === "final" ? "" : "display:none;"}"><label for="txOrderSearch">关联订单（尾款归属）</label>${orderPickerMarkup("tx", person.id, txModal.orderId)}</div>
+            <div class="field" id="txLinkOrderField" style="${txModal.type === "final" ? "" : "display:none;"}"><label for="txOrderSearch">关联订单（尾款归属）</label>${orderPickerMarkup("tx", person.id, txModal.orderId)}${txSuggestedAmountHint()}</div>
             <div class="field"><label for="txLakalaLogNo">拉卡拉流水号（可选）</label><input type="text" id="txLakalaLogNo" maxlength="64" placeholder="log_no / 对账单流水号" autocomplete="off"></div>
             <div><label class="summary-label" style="display:block;margin-bottom:7px;">类型</label><div class="type-toggle" id="typeToggle">${typeButton("full")}${typeButton("deposit")}${typeButton("final")}</div></div>
             <button type="submit" class="btn primary">+ 新增</button>
@@ -2334,6 +2352,27 @@
       function typeButton(type) { return `<button type="button" class="type-btn ${txModal.type === type ? "active" : ""}" data-type="${type}">${typeMeta[type].label}</button>`; }
       function txAmountLabel() { return txModal.type === "deposit" ? "定金到账" : txModal.type === "final" ? "尾款到账" : "全款金额"; }
       function txAmountPlaceholder() { return txModal.type === "deposit" ? "输入实际收到的定金，如 400" : txModal.type === "final" ? "输入尾款到账金额，不计入业绩" : "输入全款金额，回车提交"; }
+      function txSuggestedAmountHint() {
+        const hasSuggestion = txModal.type === "final" && txModal.orderId && safeNumber(txModal.suggestedAmount);
+        return `<p class="order-picker-hint" id="txSuggestedAmountHint" style="${hasSuggestion ? "" : "display:none;"}">${hasSuggestion ? `已预填当前待收 ${money(txModal.suggestedAmount)}，可按实际到账修改。` : ""}</p>`;
+      }
+      function refreshTailSuggestedAmountHint() {
+        const hint = $("#txSuggestedAmountHint");
+        if (!hint) return;
+        const hasSuggestion = txModal.type === "final" && txModal.orderId && safeNumber(txModal.suggestedAmount);
+        hint.style.display = hasSuggestion ? "" : "none";
+        hint.textContent = hasSuggestion ? `已预填当前待收 ${money(txModal.suggestedAmount)}，可按实际到账修改。` : "";
+      }
+      function setTailOrderSuggestion(orderIdValue, fillInput = true) {
+        txModal.orderId = orderIdValue || "";
+        const record = txModal.orderId ? orderRecords(txModal.personId).find((item) => item.order.id === txModal.orderId) : null;
+        txModal.suggestedAmount = record ? safeNumber(record.pendingAmount) : 0;
+        if (fillInput) {
+          const amountInput = $("#txAmount");
+          if (amountInput) amountInput.value = txModal.suggestedAmount ? String(txModal.suggestedAmount) : "";
+        }
+        refreshTailSuggestedAmountHint();
+      }
       function txText(tx) {
         const amount = safeNumber(tx.amount);
         if (tx.type === "deposit") {
@@ -2372,7 +2411,7 @@
         $$("[data-link-final]").forEach((button) => button.addEventListener("click", () => openLinkFinalModal(button.dataset.linkFinal)));
         $$("[data-lakala-tx]").forEach((button) => button.addEventListener("click", () => editTransactionLakala(button.dataset.lakalaTx)));
         $$("[data-delete-tx]").forEach((button) => button.addEventListener("click", () => deleteTransaction(button.dataset.deleteTx)));
-        if (txModal.type === "final") bindOrderPicker("tx", txModal.personId, (orderIdValue) => { txModal.orderId = orderIdValue; });
+        if (txModal.type === "final") bindOrderPicker("tx", txModal.personId, (orderIdValue) => setTailOrderSuggestion(orderIdValue));
         if (focus) amountInput.focus();
       }
       function syncTxFields() {
@@ -2385,7 +2424,7 @@
         $("#txLinkOrderField").style.display = isFinal ? "" : "none";
         if (isFinal) {
           $("#txLinkOrderField").innerHTML = `<label for="txOrderSearch">关联订单（尾款归属）</label>${orderPickerMarkup("tx", txModal.personId, txModal.orderId)}`;
-          bindOrderPicker("tx", txModal.personId, (orderIdValue) => { txModal.orderId = orderIdValue; });
+          bindOrderPicker("tx", txModal.personId, (orderIdValue) => setTailOrderSuggestion(orderIdValue));
         }
         $("#txAmountLabel").textContent = txAmountLabel();
         $("#txAmount").placeholder = txAmountPlaceholder();
@@ -2457,6 +2496,7 @@
         });
         saveState();
         renderAll(txModal.personId);
+        txModal.suggestedAmount = 0;
         renderTransactionModal(true);
         toast("成交明细已新增");
       }
@@ -2653,7 +2693,7 @@
           <div class="summary-grid dense">
             ${detailSummary("月度排名", rankInfo.rank ? `NO.${rankInfo.rank}` : "--", `共 ${rankInfo.totalPeople} 人 · 团队 ${money(rankInfo.teamTotal)}`, rankInfo.rank === 1 ? "full" : "")}
             ${detailSummary("月度总业绩", money(monthly.total), `${monthly.transactionCount} 笔明细`, "total")}
-            ${detailSummary("待收尾款", money(receivable.pendingAmount), `${receivable.count} 笔 · 超 3 天 ${receivable.overdueCount}`, receivable.pendingAmount ? "" : "final")}
+            ${detailSummary("待收尾款", money(receivable.pendingAmount), receivable.pendingAmount ? `${receivable.count} 笔 · 超 3 天 ${receivable.overdueCount} · 点击登记尾款` : "暂无待收订单", receivable.pendingAmount ? "" : "final", receivable.pendingAmount ? `data-month-receivable="${person.id}" title="选择客户并登记尾款"` : "")}
             ${detailSummary("今日实际成交", money(today.total), `${today.transactionCount} 笔明细`, "total")}
             ${detailSummary("连胜", `${streak} 天`, streak >= 2 ? "🔥 连续达标" : "继续冲刺", "")}
             ${detailSummary("月度定金", money(monthly.deposit), `${monthly.depositCount} 笔 · 计业绩 ${money(monthly.depositOrderAmount)}`, "deposit")}
@@ -2668,17 +2708,44 @@
         `;
         openModal(modalShell(`${escapeHTML(person.name)} · 月度详情`, `${month} 全面汇总`, body, "wide"), () => bindMonthlyDetail(personId));
       }
-      function detailSummary(label, value, small, className) {
-        return `<div class="summary-card ${className}"><p class="summary-label">${label}</p><p class="summary-value">${value}</p><p class="summary-small">${small}</p></div>`;
+      function detailSummary(label, value, small, className, actionAttributes = "") {
+        const content = `<p class="summary-label">${label}</p><p class="summary-value">${value}</p><p class="summary-small">${small}</p>`;
+        return actionAttributes
+          ? `<button type="button" class="summary-card actionable ${className}" ${actionAttributes}>${content}</button>`
+          : `<div class="summary-card ${className}">${content}</div>`;
       }
       function monthlyReceivableTable(orders) {
         if (!orders.length) return `<div class="empty" style="margin-bottom:14px;">该销售员本月没有待收尾款订单。</div>`;
         const rows = orders.map((item) => {
           const customer = item.order.customerName ? escapeHTML(item.order.customerName) : "未填写客户";
           const meta = followStatusMeta(item.status);
-          return `<tr><td>${customer}</td><td class="money">${item.order.depositDate}</td><td class="money gold">${money(item.orderAmount)}</td><td class="money blue">${money(item.depositAmount)}</td><td class="money green">${money(item.finalAmount)}</td><td class="money red">${money(item.pendingAmount)}</td><td>${meta.label}</td><td class="money">${item.days} 天</td></tr>`;
+          return `<tr><td>${customer}</td><td class="money">${item.order.depositDate}</td><td class="money gold">${money(item.orderAmount)}</td><td class="money blue">${money(item.depositAmount)}</td><td class="money green">${money(item.finalAmount)}</td><td class="money red"><button type="button" class="tail-collect-link" data-collect-order="${escapeHTML(item.order.id)}" title="登记 ${customer} 的尾款">${money(item.pendingAmount)}</button></td><td>${meta.label}</td><td class="money">${item.days} 天</td></tr>`;
         }).join("");
         return `<div class="scroll" style="margin-bottom:14px;"><table class="daily-table"><thead><tr><th>客户</th><th>定金日期</th><th>订单金额</th><th>定金</th><th>已收尾款</th><th>待收尾款</th><th>状态</th><th>等待</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      }
+      function collectTailForOrder(orderIdValue) {
+        if (!requireEdit()) return;
+        const record = orderRecords().find((item) => item.order.id === orderIdValue);
+        if (!record || record.pendingAmount <= 0 || record.status === "lost") {
+          toast("这笔订单目前没有可登记的待收尾款");
+          return;
+        }
+        openTransactionModal(record.order.personId, dateKey(), true, record.order.id, record.pendingAmount);
+      }
+      function openMonthlyReceivablePicker(personId) {
+        const person = getPerson(personId);
+        if (!person) return;
+        const month = activeMonth();
+        const orders = pendingDepositOrders(personId, month);
+        const body = orders.length
+          ? `<div class="tail-collect-list">${orders.map((item) => {
+              const customer = escapeHTML(item.order.customerName || "未填写客户");
+              return `<article class="tail-collect-row"><div><strong>${customer}</strong><span>${item.order.depositDate} · 订单 ${money(item.orderAmount)} · 已收 ${money(item.receivedAmount)}</span></div><div class="tail-collect-actions"><strong class="money red">${money(item.pendingAmount)}</strong><button type="button" class="btn primary" data-collect-order="${escapeHTML(item.order.id)}">登记尾款</button></div></article>`;
+            }).join("")}</div>`
+          : `<div class="empty">当前没有待收尾款订单。</div>`;
+        openModal(modalShell(`${escapeHTML(person.name)} · 待收尾款`, `${month} · 选择客户后直接登记实际到账尾款`, body, "wide"), () => {
+          $$('[data-collect-order]').forEach((button) => button.addEventListener("click", () => collectTailForOrder(button.dataset.collectOrder)));
+        });
       }
       function dailyRows(personId, month) {
         return Array.from({ length: daysInMonth(month) }, (_, i) => {
@@ -2689,6 +2756,9 @@
         }).join("");
       }
       function bindMonthlyDetail(personId) {
+        const receivableCard = $("[data-month-receivable]");
+        if (receivableCard) receivableCard.addEventListener("click", () => openMonthlyReceivablePicker(personId));
+        $$('[data-collect-order]').forEach((button) => button.addEventListener("click", () => collectTailForOrder(button.dataset.collectOrder)));
         $$("[data-detail-tx]").forEach((button) => button.addEventListener("click", () => openTransactionModal(personId, button.dataset.detailTx)));
         $$("[data-delete-day]").forEach((button) => button.addEventListener("click", () => {
           if (!requireEdit()) return;
