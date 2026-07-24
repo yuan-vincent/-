@@ -93,7 +93,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .filter-panel-head { margin-bottom: 13px; display: flex; justify-content: space-between; align-items: center; }
 .filter-panel-head strong { display: block; font-size: 13px; }
 .filter-panel-head small { display: block; margin-top: 3px; color: #927f71; font-size: 9px; }
-.filter-panel-head button { border: 0; background: transparent; color: #7b604e; cursor: pointer; font-size: 10px; }
+.filter-panel-head button { min-width: 92px; height: 36px; padding: 0 16px; border: 1px solid #d5baa2; border-radius: 8px; background: #f5e7d9; color: #704b34; cursor: pointer; font-size: 11px; font-weight: 800; }
+.filter-panel-head button:hover { border-color: #a97958; background: #eddbc9; color: #593522; }
 .filter-grid { display: grid; grid-template-columns: repeat(5,minmax(130px,1fr)); gap: 11px; }
 .filter-grid label { color: #6d584a; font-size: 10px; font-weight: 800; }
 .filter-grid select { width: 100%; height: 39px; margin-top: 6px; padding: 0 10px; border: 1px solid #dbc8b7; border-radius: 8px; outline: 0; background: #fffdfa; color: #4f3f34; }
