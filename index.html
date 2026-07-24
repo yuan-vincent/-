@@ -104,6 +104,31 @@
       box-shadow: 0 12px 30px rgba(0, 0, 0, .28), var(--inner-glow);
     }
     .pill strong { color: var(--text); font-family: "JetBrains Mono", monospace; font-size: 14px; }
+    .price-hub-link {
+      min-height: 46px;
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid rgba(241, 207, 120, .72);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #e3c366, #c59a38 58%, #b86832);
+      color: #171109;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 14px 34px rgba(201, 166, 70, .2), inset 0 1px 0 rgba(255, 255, 255, .34);
+      transition: transform .32s cubic-bezier(.19, 1, .22, 1), box-shadow .32s ease, filter .32s ease;
+    }
+    .price-hub-link:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.06);
+      box-shadow: 0 20px 44px rgba(201, 166, 70, .3), 0 0 0 1px rgba(241, 207, 120, .22);
+    }
+    .price-hub-link > span:first-child { font-size: 20px; filter: drop-shadow(0 4px 8px rgba(67, 42, 13, .18)); }
+    .price-hub-copy { display: flex; flex-direction: column; gap: 1px; }
+    .price-hub-copy strong { font-size: 13px; font-weight: 900; letter-spacing: .03em; }
+    .price-hub-copy small { color: rgba(23, 17, 9, .68); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+    .price-hub-arrow { font-family: "JetBrains Mono", monospace; font-size: 17px; font-weight: 900; }
     .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rose); animation: livePulse 1.6s ease-out infinite; }
     .dot.online { background: var(--green); }
     .dot.syncing { background: var(--gold); }
@@ -426,7 +451,7 @@
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
     @media (max-width: 1180px) { .stats, .charts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .chart-panel { grid-column: 1 / -1; } .goal-grid, .summary-grid.dense { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-layout { grid-template-columns: 1fr; } .follow-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } .follow-list { grid-template-columns: repeat(2, minmax(220px, 1fr)); } .monthly-board-list { grid-template-columns: repeat(4, minmax(150px, 1fr)); } }
-    @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions, .toolbar-left { justify-content: flex-start; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px 38px; } .tx-check { grid-column: 3 / -1; } }
+    @media (max-width: 760px) { .app { width: min(100% - 20px, 1680px); padding-top: 18px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .meta, .actions, .toolbar-left { justify-content: flex-start; } .price-hub-link { width: 100%; justify-content: center; } .stats, .charts, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); } .podium { grid-template-columns: 1fr; } .place.first { order: -1; } .tx-entry, .tx-entry.deposit-mode { grid-template-columns: 1fr; } .type-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .tx-item { grid-template-columns: 44px 84px minmax(100px, 1fr) 38px 38px; } .tx-check { grid-column: 3 / -1; } }
     @media (max-width: 520px) { h1 { font-size: 31px; } .stats, .summary-grid, .summary-grid.dense, .form-grid, .goal-grid, .follow-stats, .follow-list, .monthly-board-list, .reconcile-layout { grid-template-columns: 1fr; } .seg { width: 100%; } .seg button, .btn { flex: 1; } .actions { display: grid; grid-template-columns: 1fr; } .reconcile-row { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 1180px) { .profile-metrics, .order-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 760px) { .profile-hero, .profile-grid, .order-detail-grid { grid-template-columns: 1fr; } .activity-item { grid-template-columns: 1fr; gap: 7px; } .activity-time { text-align: left; } .order-filter, .tx-entry.final-mode { grid-template-columns: 1fr; } }
@@ -441,6 +466,11 @@
         <h1>雷镜私域业绩中心</h1>
       </div>
       <div class="meta">
+        <a class="price-hub-link" href="https://mingjing-lens-prices.freedom7146.chatgpt.site/products" target="_blank" rel="noopener noreferrer" aria-label="打开雷镜镜片成本价查询">
+          <span aria-hidden="true">🔎</span>
+          <span class="price-hub-copy"><strong>镜片成本价查询</strong><small>一键直达内部价库</small></span>
+          <span class="price-hub-arrow" aria-hidden="true">→</span>
+        </a>
         <div class="pill" id="datePill"></div>
         <div class="pill" id="syncPill"><i class="dot" id="syncDot"></i><strong id="syncMain">LOCAL</strong><span id="syncText">本地模式</span></div>
       </div>
