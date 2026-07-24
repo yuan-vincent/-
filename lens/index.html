@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3b2419">
+  <title>雷镜镜片价库</title>
+  <meta name="description" content="雷镜内部镜片批发价与成本价查询">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main id="loginView" class="login-page">
+    <section class="login-intro">
+      <div class="login-brand">
+        <span class="logo-mark">◉</span>
+        <span><strong>雷镜镜片价库</strong><small>LEI LENS ARCHIVE</small></span>
+      </div>
+      <div class="login-copy">
+        <p class="eyebrow">INTERNAL PRICE ARCHIVE</p>
+        <h1>镜片价格，<br>清晰掌握。</h1>
+        <p>汇集品牌、系列、折射率、膜层和供应方式，帮助团队快速找到准确的批发价与成本价。</p>
+      </div>
+      <span class="security-note">仅限已授权员工访问</span>
+    </section>
+    <section class="login-panel">
+      <form id="loginForm" class="login-card">
+        <div class="login-title">
+          <span class="lock-mark">⌾</span>
+          <div><h2>员工登录</h2><p>请输入已开通的手机号与统一密码</p></div>
+        </div>
+        <label>
+          <span>手机号</span>
+          <input id="phoneInput" inputmode="numeric" autocomplete="username" maxlength="11" placeholder="请输入11位手机号" required>
+        </label>
+        <label>
+          <span>登录密码</span>
+          <input id="passwordInput" type="password" autocomplete="current-password" placeholder="请输入登录密码" required>
+        </label>
+        <p id="loginError" class="form-error" role="alert"></p>
+        <button id="loginButton" type="submit">进入价格档案</button>
+        <p class="login-help">账号未开通或无法登录时，请联系管理员处理。</p>
+      </form>
+    </section>
+  </main>
+
+  <main id="catalogView" class="catalog-page" hidden>
+    <header class="topbar">
+      <div class="topbar-brand">
+        <span class="logo-mark">◉</span>
+        <span><strong>雷镜镜片价库</strong><small>内部批发价与成本档案</small></span>
+      </div>
+      <div class="topbar-actions">
+        <span id="currentUser" class="user-chip"></span>
+        <button id="logoutButton" class="logout-button" type="button">退出</button>
+      </div>
+    </header>
+
+    <div class="catalog-shell">
+      <section class="catalog-hero">
+        <div><strong>雷镜镜片价格档案</strong><span id="catalogSummary">正在读取受保护的价格数据…</span></div>
+        <b>持续更新</b>
+      </section>
+
+      <section class="search-panel">
+        <div class="search-mode" aria-label="搜索方式">
+          <button type="button" data-mode="fuzzy" class="selected">模糊搜索</button>
+          <button type="button" data-mode="exact">精准搜索</button>
+        </div>
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="searchInput" placeholder="可输入：尼康 控优点 1.67，或东海 LTN 1.67">
+          <button id="searchButton" type="button">搜索</button>
+        </label>
+        <button id="filterToggle" class="filter-toggle" type="button">分类筛选 <i id="filterCount">0</i></button>
+      </section>
+      <p id="searchGuidance" class="search-guidance">多个关键词会组合匹配品牌、名称、系列、膜层、使用场景与型号。</p>
+
+      <section class="brand-nav" aria-label="镜片品牌一级目录">
+        <div class="brand-nav-head">
+          <span>一级目录</span>
+          <div><strong>镜片品牌</strong><small>先选择品牌，再进入对应的产品体系</small></div>
+        </div>
+        <div id="brandOptions" class="brand-options"></div>
+      </section>
+
+      <section class="group-nav">
+        <strong id="groupTitle">全部产品体系</strong>
+        <div id="groupOptions" class="group-options"></div>
+      </section>
+
+      <section id="filterPanel" class="filter-panel">
+        <div class="filter-panel-head">
+          <div><strong>组合筛选</strong><small>可以同时选择产品家族、折射率、膜层和供货方式</small></div>
+          <button id="resetFilters" type="button">清除全部</button>
+        </div>
+        <div class="filter-grid">
+          <label>产品家族<select id="familyFilter"></select></label>
+          <label>具体系列<select id="seriesFilter"></select></label>
+          <label>折射率<select id="indexFilter"></select></label>
+          <label>膜层<select id="coatingFilter"></select></label>
+          <label>供货方式<select id="supplyFilter"></select></label>
+        </div>
+      </section>
+
+      <section class="result-panel">
+        <div class="result-head">
+          <div><strong>查询结果</strong><span id="resultSummary"></span></div>
+          <span id="loadingState" class="loading-state">读取中…</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>品牌</th><th>产品名称 / 型号</th><th>折射率</th><th>设计 / 供货</th>
+                <th>膜层</th><th>批发价</th><th class="cost-head">成本价</th><th>建议零售价</th>
+              </tr>
+            </thead>
+            <tbody id="resultRows"></tbody>
+          </table>
+        </div>
+        <div id="emptyState" class="empty-state" hidden>没有符合条件的产品，请减少筛选条件或切换到模糊搜索。</div>
+        <nav id="pagination" class="pagination" aria-label="结果分页"></nav>
+      </section>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
