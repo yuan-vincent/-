@@ -105,7 +105,19 @@
       <section class="result-panel">
         <div class="result-head">
           <div><strong>查询结果</strong><span id="resultSummary"></span></div>
-          <span id="loadingState" class="loading-state">读取中…</span>
+          <div class="result-actions">
+            <label class="price-sort">
+              <span>价格排序</span>
+              <select id="priceSort">
+                <option value="">默认排序</option>
+                <option value="cost_price:asc">成本价：最低 → 最高</option>
+                <option value="cost_price:desc">成本价：最高 → 最低</option>
+                <option value="retail_price:asc">建议零售价：最低 → 最高</option>
+                <option value="retail_price:desc">建议零售价：最高 → 最低</option>
+              </select>
+            </label>
+            <span id="loadingState" class="loading-state">读取中…</span>
+          </div>
         </div>
         <div class="table-wrap">
           <table>

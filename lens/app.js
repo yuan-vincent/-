@@ -8,6 +8,7 @@
     mode: "fuzzy",
     query: "",
     page: 1,
+    sort: "",
     bundle: null,
     filters: { brand: "", catalogGroup: "", family: "", series: "", refractiveIndex: "", coating: "", supplyType: "" }
   };
@@ -208,9 +209,22 @@
       (!state.filters.supplyType || row.supply_type === state.filters.supplyType) &&
       queryMatches(row)
     );
+    if (state.sort) {
+      const [field, direction] = state.sort.split(":");
+      state.filtered.sort((a, b) => {
+        const aMissing = a[field] === null || a[field] === undefined || a[field] === "";
+        const bMissing = b[field] === null || b[field] === undefined || b[field] === "";
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+        const difference = Number(a[field]) - Number(b[field]);
+        return direction === "desc" ? -difference : difference;
+      });
+    }
     const activeCount = Object.values(state.filters).filter(Boolean).length;
     $("#filterCount").textContent = activeCount;
-    $("#resultSummary").textContent = `共 ${state.filtered.length.toLocaleString("zh-CN")} 个产品`;
+    const sortLabel = state.sort ? ` · ${$("#priceSort").selectedOptions[0].textContent}` : "";
+    $("#resultSummary").textContent = `共 ${state.filtered.length.toLocaleString("zh-CN")} 个产品${sortLabel}`;
     renderRows();
   }
 
@@ -292,9 +306,16 @@
   $("#resetFilters").addEventListener("click", () => {
     state.filters = { brand: "", catalogGroup: "", family: "", series: "", refractiveIndex: "", coating: "", supplyType: "" };
     state.query = "";
+    state.sort = "";
     $("#searchInput").value = "";
+    $("#priceSort").value = "";
     state.page = 1;
     refreshBrandOptions(); refreshGroupOptions(); refreshSelects(); applyFilters();
+  });
+  $("#priceSort").addEventListener("change", (event) => {
+    state.sort = event.target.value;
+    state.page = 1;
+    applyFilters();
   });
   SELECTS.forEach(([id, key]) => $(`#${id}`).addEventListener("change", (event) => {
     const filterKey = key === "refractive_index" ? "refractiveIndex" : key === "supply_type" ? "supplyType" : key;
