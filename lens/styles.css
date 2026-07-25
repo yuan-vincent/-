@@ -50,9 +50,11 @@ button { -webkit-tap-highlight-color: transparent; }
 
 .catalog-page { min-height: 100vh; }
 .topbar { min-height: 74px; padding: 11px clamp(16px,4vw,58px); display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid #d9c4b2; background: rgba(255,250,244,.91); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 20; }
-.topbar .logo-mark { width: 42px; height: 42px; border-radius: 10px; font-size: 22px; }
-.topbar-brand strong { font-size: 17px; }
-.topbar-brand small { margin-top: 3px; color: #91684a; letter-spacing: .1em; }
+.topbar-brand { min-width: 265px; gap: 16px; }
+.topbar-brand > span:last-child { min-width: 168px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.topbar .logo-mark { width: 46px; height: 46px; border-radius: 11px; font-size: 24px; }
+.topbar-brand strong { font-size: 20px; line-height: 1.2; letter-spacing: .08em; }
+.topbar-brand small { margin-top: 5px; color: #91684a; font-size: 11px; line-height: 1.25; letter-spacing: .08em; }
 .topbar-actions { display: flex; align-items: center; gap: 9px; }
 .user-chip { padding: 8px 11px; border-radius: 18px; background: #eee2d7; color: #725442; font-size: 10px; }
 .logout-button { height: 34px; padding: 0 13px; border: 1px solid #d6bfaa; border-radius: 8px; background: #fffaf4; color: #6e5342; cursor: pointer; }
@@ -138,6 +140,10 @@ tbody tr:hover { background: #fff9f2; }
   .login-panel { min-height: auto; padding: 30px 15px 54px; }
   .login-card { padding: 29px 23px; border-radius: 15px; }
   .topbar { position: static; padding: 11px 13px; }
+  .topbar-brand { min-width: 0; gap: 10px; }
+  .topbar-brand > span:last-child { min-width: 0; }
+  .topbar .logo-mark { width: 42px; height: 42px; font-size: 22px; }
+  .topbar-brand strong { font-size: 17px; }
   .topbar-brand small, .user-chip { display: none; }
   .catalog-shell { width: min(100% - 20px, 1540px); padding-top: 12px; }
   .catalog-hero { padding: 13px 14px; }
