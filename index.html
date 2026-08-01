@@ -466,7 +466,7 @@
         <h1>雷镜私域业绩中心</h1>
       </div>
       <div class="meta">
-        <a class="price-hub-link" href="./lens/" aria-label="打开雷镜镜片成本价查询">
+        <a class="price-hub-link" href="https://mingjing-lens-prices.freedom7146.chatgpt.site/products" target="_blank" rel="noopener noreferrer" aria-label="打开雷镜镜片成本价查询">
           <span aria-hidden="true">🔎</span>
           <span class="price-hub-copy"><strong>镜片成本价查询</strong><small>一键直达内部价库</small></span>
           <span class="price-hub-arrow" aria-hidden="true">→</span>
@@ -599,8 +599,6 @@
         { id: "B", account: "小红书B", name: "袁鹏" },
         { id: "E", account: "小红书E", name: "黄惠丹" },
         { id: "C", account: "小红书C", name: "凌洁莹" },
-        { id: "L", account: "小红书L", name: "王怡然" },
-        { id: "F", account: "小红书F", name: "曾景昇" },
         { id: "D", account: "小红书D", name: "刘宇哲" },
         { id: "G", account: "小红书G", name: "马允宏" },
         { id: "H", account: "小红书Q", name: "冯建勇" },
@@ -608,6 +606,12 @@
         { id: "J", account: "小红书M", name: "凌萤彬" },
         { id: "K", account: "小红书K", name: "程家琪" }
       ];
+      // 离职成员不再进入业绩中心展示，但保留在数据层以避免历史业绩、订单和对账记录被同步删除。
+      const archivedPeople = [
+        { id: "L", account: "小红书L", name: "王怡然", archived: true },
+        { id: "F", account: "小红书F", name: "曾景昇", archived: true }
+      ];
+      const allPeople = [...people, ...archivedPeople];
 
       const typeMeta = {
         full: { label: "全款", key: "fullPayment", className: "full" },
@@ -839,7 +843,7 @@
         const byId = new Map(sourceOrders.map((order) => [order.id, order]));
         const byDeposit = new Map(sourceOrders.map((order) => [order.depositTxId, order]));
         const active = [];
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           (targetState.entries[person.id] || []).forEach((entry) => {
             (entry.transactions || []).forEach((tx) => {
               if (tx.type !== "deposit") return;
@@ -936,7 +940,7 @@
       function defaultState() {
         const entries = {};
         const goals = {};
-        people.forEach((person) => { entries[person.id] = []; goals[person.id] = 50000; });
+        allPeople.forEach((person) => { entries[person.id] = []; goals[person.id] = 50000; });
         return { entries, goals, orders: [], reconciliations: {}, activityLog: [], meta: { goals: {}, entries: {}, deletedTx: {}, deletedDays: {}, reconciliations: {} } };
       }
 
@@ -953,7 +957,7 @@
       function normalizeState(input) {
         const next = defaultState();
         if (!input || typeof input !== "object") return next;
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           const list = input.entries && Array.isArray(input.entries[person.id]) ? input.entries[person.id] : [];
           next.entries[person.id] = list.map(normalizeEntry).filter(Boolean);
           const hasGoal = input.goals && Object.prototype.hasOwnProperty.call(input.goals, person.id);
@@ -1056,7 +1060,7 @@
         state.meta = state.meta || { goals: {}, entries: {}, deletedTx: {}, deletedDays: {} };
         state.activityLog = normalizeActivityLog(state.activityLog);
         applyDeletedMarkers(state);
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           state.entries[person.id] = (state.entries[person.id] || [])
             .map(normalizeEntry)
             .filter((entry) => entry.privateCount || entry.dealsCount || entry.transactions.length);
@@ -1108,7 +1112,7 @@
 
       function applyDeletedMarkers(targetState) {
         const deletedTx = targetState.meta && targetState.meta.deletedTx ? targetState.meta.deletedTx : {};
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           targetState.entries[person.id] = (targetState.entries[person.id] || [])
             .filter((entry) => !isEntryDeleted(targetState, person.id, entry))
             .map((entry) => {
@@ -1118,7 +1122,7 @@
         });
       }
 
-      function getPerson(id) { return people.find((person) => person.id === id); }
+      function getPerson(id) { return allPeople.find((person) => person.id === id); }
       function getEntry(personId, day) { return (state.entries[personId] || []).find((entry) => entry.date === day) || null; }
       function ensureEntry(personId, day) {
         let entry = getEntry(personId, day);
@@ -1242,7 +1246,7 @@
           });
         });
 
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           const remoteGoalTime = remote.meta.goals[person.id];
           const localGoalTime = local.meta.goals[person.id];
           if (remoteGoalTime || localGoalTime) {
@@ -1344,7 +1348,7 @@
       }
       function availableMonths() {
         const months = new Set([monthKey(dateKey()), "2026-05"]);
-        people.forEach((person) => (state.entries[person.id] || []).forEach((entry) => months.add(monthKey(entry.date))));
+        allPeople.forEach((person) => (state.entries[person.id] || []).forEach((entry) => months.add(monthKey(entry.date))));
         return Array.from(months).sort();
       }
       function syncMonthPicker() {
@@ -1741,7 +1745,7 @@
       }
       function cashTransactionsForDay(day) {
         const txs = [];
-        people.forEach((person) => {
+        allPeople.forEach((person) => {
           const entry = getEntry(person.id, day);
           if (!entry) return;
           (entry.transactions || []).forEach((tx) => {
