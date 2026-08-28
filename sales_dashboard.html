@@ -290,6 +290,7 @@
     .monthly-card:hover { transform: translateY(-4px); border-color: rgba(201,166,70,.34); background: linear-gradient(180deg, rgba(25,30,37,.84), rgba(9,12,16,.76)); }
     .monthly-card.rank-1 { border-color: rgba(201,166,70,.48); box-shadow: 0 22px 70px rgba(201,166,70,.09), var(--inner-glow); }
     .monthly-rank { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 4px; min-height: 26px; padding: 3px 8px; border-radius: 999px; background: rgba(216,197,163,.1); color: #ead59a; font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 900; }
+    .monthly-history { position: absolute; z-index: 1; top: 15px; right: 14px; padding: 3px 7px; border: 1px solid rgba(148,163,184,.26); border-radius: 999px; color: var(--muted); background: rgba(148,163,184,.08); font-size: 11px; font-weight: 800; }
     .monthly-name { position: relative; z-index: 1; margin: 12px 0 4px; color: var(--text); font-size: 16px; font-weight: 900; }
     .monthly-account { position: relative; z-index: 1; color: var(--muted); font-size: 12px; }
     .monthly-total { position: relative; z-index: 1; margin: 12px 0 8px; color: var(--gold); font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 900; }
@@ -466,7 +467,7 @@
         <h1>雷镜私域业绩中心</h1>
       </div>
       <div class="meta">
-        <a class="price-hub-link" href="https://yuan-vincent.github.io/-/lens/" target="_blank" rel="noopener noreferrer" aria-label="打开雷镜镜片成本价查询">
+        <a class="price-hub-link" href="https://mingjing-lens-prices.freedom7146.chatgpt.site/products" target="_blank" rel="noopener noreferrer" aria-label="打开雷镜镜片成本价查询">
           <span aria-hidden="true">🔎</span>
           <span class="price-hub-copy"><strong>镜片成本价查询</strong><small>一键直达内部价库</small></span>
           <span class="price-hub-arrow" aria-hidden="true">→</span>
@@ -605,9 +606,10 @@
         { id: "I", account: "小红书P", name: "陈诗欣" },
         { id: "J", account: "小红书M", name: "凌萤彬" },
         { id: "K", account: "小红书K", name: "程家琪" },
-        { id: "N", account: "小红书L", name: "林威成" }
+        { id: "N", account: "小红书L", name: "林威成" },
+        { id: "O", account: "小红书F", name: "江志烨", joinedMonth: "2026-08" }
       ];
-      // 离职成员不再进入业绩中心展示，但保留在数据层以避免历史业绩、订单和对账记录被同步删除。
+      // 离职成员在当前团队中隐藏，但保留数据；切换到有历史业绩的月份时会自动显示。
       const archivedPeople = [
         { id: "L", account: "小红书L", name: "王怡然", archived: true },
         { id: "F", account: "小红书F", name: "曾景昇", archived: true }
@@ -1329,8 +1331,14 @@
       function monthMetrics(personId, month = activeMonth()) {
         return (state.entries[personId] || []).filter((entry) => entry.date.startsWith(month)).reduce((sum, entry) => addMetrics(sum, summarizeEntry(entry)), emptyMetrics());
       }
-      function teamMetricsForDay(day = dateKey()) { return people.reduce((sum, person) => addMetrics(sum, dayMetrics(person.id, day)), emptyMetrics()); }
-      function teamMetricsForMonth(month = activeMonth()) { return people.reduce((sum, person) => addMetrics(sum, monthMetrics(person.id, month)), emptyMetrics()); }
+      function peopleInMonth(month = activeMonth()) {
+        return allPeople.filter((person) => {
+          if (person.archived) return (state.entries[person.id] || []).some((entry) => entry.date.startsWith(month));
+          return !person.joinedMonth || person.joinedMonth <= month;
+        });
+      }
+      function teamMetricsForDay(day = dateKey()) { return peopleInMonth(monthKey(day)).reduce((sum, person) => addMetrics(sum, dayMetrics(person.id, day)), emptyMetrics()); }
+      function teamMetricsForMonth(month = activeMonth()) { return peopleInMonth(month).reduce((sum, person) => addMetrics(sum, monthMetrics(person.id, month)), emptyMetrics()); }
       function dailyNeeded(done, goal, month = activeMonth()) {
         const gap = Math.max(goal - done, 0);
         const left = daysLeftForMonth(month);
@@ -1368,7 +1376,7 @@
         return { person, today, monthly, goal, progress, dailyNeed: dailyNeeded(monthly.total, goal), streak: streakDays(person.id, goal) };
       }
       function monthlySnapshots(month = activeMonth()) {
-        return people.map((person) => {
+        return peopleInMonth(month).map((person) => {
           const monthly = monthMetrics(person.id, month);
           const goal = safeNumber(state.goals[person.id]);
           const progress = goal ? (monthly.total / goal) * 100 : 0;
@@ -1412,7 +1420,7 @@
         const teamMonth = teamMetricsForMonth(month);
         const teamToday = teamMetricsForDay();
         const teamYesterday = teamMetricsForDay(addDays(dateKey(), -1));
-        const teamGoal = people.reduce((sum, person) => sum + safeNumber(state.goals[person.id]), 0);
+        const teamGoal = peopleInMonth(month).reduce((sum, person) => sum + safeNumber(state.goals[person.id]), 0);
         const progress = teamGoal ? (teamMonth.total / teamGoal) * 100 : 0;
         const delta = compareDelta(teamToday.total, teamYesterday.total);
         const dailyNeed = dailyNeeded(teamMonth.total, teamGoal, month);
@@ -1448,7 +1456,8 @@
         return `<div class="place ${className}"><div class="place-rank">${crown} NO.${rank}</div><div class="place-name">${escapeHTML(item.person.name)}</div><div class="place-account">${escapeHTML(item.person.account)}</div><div class="place-money">${money(item.metrics.total)}</div><div class="place-account">${item.metrics.transactionCount} 笔成交明细</div></div>`;
       }
       function renderRanking() {
-        const rows = people.map(snapshot).sort((a, b) => {
+        const roster = sortMode === "month" ? peopleInMonth(activeMonth()) : people;
+        const rows = roster.map(snapshot).sort((a, b) => {
           const primary = sortMode === "today" ? b.today.total - a.today.total : b.monthly.total - a.monthly.total;
           return primary || b.monthly.total - a.monthly.total || a.person.name.localeCompare(b.person.name, "zh-CN");
         });
@@ -1636,6 +1645,7 @@
         return `
           <article class="monthly-card ${rank === 1 ? "rank-1" : ""}" data-month-detail="${item.person.id}" title="查看月度详情">
             <span class="monthly-rank">NO.${rank}${rank === 1 ? " 👑" : ""}</span>
+            ${item.person.archived ? `<span class="monthly-history">历史归档</span>` : ""}
             <div class="monthly-name">${escapeHTML(item.person.name)}</div>
             <div class="monthly-account">${escapeHTML(item.person.account)}</div>
             <div class="monthly-total">${money(item.monthly.total)}</div>
