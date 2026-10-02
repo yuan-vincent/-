@@ -607,14 +607,15 @@
         { id: "J", account: "小红书M", name: "凌萤彬" },
         { id: "K", account: "小红书K", name: "程家琪" },
         { id: "N", account: "小红书L", name: "林威成" },
-        { id: "O", account: "小红书F", name: "江志烨", joinedMonth: "2026-08" },
         { id: "P", account: "小红书C", name: "高飞龙", joinedMonth: "2026-09" },
-        { id: "Q", account: "小红书F", name: "潘桂玉", joinedMonth: "2026-09" }
+        { id: "Q", account: "小红书F", name: "潘桂玉", joinedMonth: "2026-09" },
+        { id: "R", account: "小红书H", name: "李舒敏", joinedMonth: "2026-10" }
       ];
       // 离职成员在当前团队中隐藏，但保留数据；切换到有历史业绩的月份时会自动显示。
       const archivedPeople = [
         { id: "L", account: "小红书L", name: "王怡然", archived: true },
-        { id: "F", account: "小红书F", name: "曾景昇", archived: true }
+        { id: "F", account: "小红书F", name: "曾景昇", archived: true },
+        { id: "O", account: "小红书F", name: "江志烨", joinedMonth: "2026-08", leftMonth: "2026-10", archived: true }
       ];
       const allPeople = [...people, ...archivedPeople];
 
@@ -1335,8 +1336,10 @@
       }
       function peopleInMonth(month = activeMonth()) {
         return allPeople.filter((person) => {
+          if (person.joinedMonth && person.joinedMonth > month) return false;
+          if (person.leftMonth && person.leftMonth <= month) return false;
           if (person.archived) return (state.entries[person.id] || []).some((entry) => entry.date.startsWith(month));
-          return !person.joinedMonth || person.joinedMonth <= month;
+          return true;
         });
       }
       function teamMetricsForDay(day = dateKey()) { return peopleInMonth(monthKey(day)).reduce((sum, person) => addMetrics(sum, dayMetrics(person.id, day)), emptyMetrics()); }
