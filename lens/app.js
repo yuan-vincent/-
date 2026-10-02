@@ -5,12 +5,19 @@
   const state = {
     rows: [],
     filtered: [],
+    frames: [],
+    frameFiltered: [],
+    activeCatalog: "lens",
     mode: "fuzzy",
     query: "",
+    frameQuery: "",
     page: 1,
+    framePage: 1,
     sort: "",
+    frameSort: "",
     bundle: null,
-    filters: { brand: "", catalogGroup: "", family: "", series: "", refractiveIndex: "", coating: "", supplyType: "" }
+    filters: { brand: "", catalogGroup: "", family: "", series: "", refractiveIndex: "", coating: "", supplyType: "" },
+    frameFilters: { brand: "", series: "" }
   };
 
   const $ = (selector) => document.querySelector(selector);
@@ -61,20 +68,31 @@
     loginView.hidden = false;
     loginError.textContent = message;
     state.rows = [];
+    state.frames = [];
   }
 
-  function showCatalog(phone, rows) {
+  function showCatalog(phone, catalog) {
+    const rows = Array.isArray(catalog) ? catalog : (catalog.products || []);
+    const frames = Array.isArray(catalog?.frames) ? catalog.frames : [];
     loginView.hidden = true;
     catalogView.hidden = false;
     $("#currentUser").textContent = phone ? `${phone.slice(0,3)}****${phone.slice(-4)}` : "已登录";
     rows.forEach((row) => { row.search_text = Object.values(row).filter((value) => value !== null).join(" "); });
+    frames.forEach((row) => { row.search_text = Object.values(row).filter((value) => value !== null).join(" "); });
     state.rows = rows;
-    $("#catalogSummary").textContent = `已整理 ${rows.length.toLocaleString("zh-CN")} 个在售产品变体，成本数据仅向已登录员工开放。`;
+    state.frames = frames;
+    const frameSummary = frames.length
+      ? `，以及 ${frames.length.toLocaleString("zh-CN")} 个镜框系列`
+      : "；镜框栏目已建立，待录入品牌与系列成本";
+    $("#catalogSummary").textContent = `已整理 ${rows.length.toLocaleString("zh-CN")} 个镜片产品变体${frameSummary}，成本数据仅向已登录员工开放。`;
     $("#loadingState").textContent = "";
     refreshBrandOptions();
     refreshGroupOptions();
     refreshSelects();
     applyFilters();
+    refreshFrameOptions();
+    applyFrameFilters();
+    switchCatalogView(location.hash === "#frames" ? "frame" : "lens", false);
   }
 
   async function sha256Hex(text) {
@@ -122,12 +140,12 @@
     const masterKey = await decryptAes(wrappingKey, user);
     const catalog = await openCatalog(masterKey);
     sessionStorage.setItem(SESSION_KEY, JSON.stringify({ phone, masterKey: toB64(masterKey) }));
-    return catalog.products;
+    return catalog;
   }
 
-  function buttonHtml(value, count, selected, allLabel = "") {
+  function buttonHtml(value, count, selected, allLabel = "", unit = "款") {
     return `<button type="button" data-value="${escapeHtml(value)}" class="${selected ? "selected" : ""}" aria-pressed="${selected}">
-      <span>${escapeHtml(value || allLabel)}</span><small>${count.toLocaleString("zh-CN")} 款</small>
+      <span>${escapeHtml(value || allLabel)}</span><small>${count.toLocaleString("zh-CN")} ${unit}</small>
     </button>`;
   }
 
@@ -267,6 +285,153 @@
     }));
   }
 
+  const frameCostValue = (row) => {
+    const candidates = [row.cost_price, row.cost_price_min, row.cost_price_max]
+      .map((value) => value === null || value === undefined || value === "" ? null : Number(value))
+      .filter((value) => Number.isFinite(value));
+    return candidates.length ? candidates[0] : null;
+  };
+
+  function frameCost(row) {
+    if (clean(row.cost_label)) return escapeHtml(row.cost_label);
+    const exact = row.cost_price === null || row.cost_price === undefined || row.cost_price === "" ? null : Number(row.cost_price);
+    const minimum = row.cost_price_min === null || row.cost_price_min === undefined || row.cost_price_min === "" ? null : Number(row.cost_price_min);
+    const maximum = row.cost_price_max === null || row.cost_price_max === undefined || row.cost_price_max === "" ? null : Number(row.cost_price_max);
+    if (Number.isFinite(exact)) return money(exact);
+    if (Number.isFinite(minimum) && Number.isFinite(maximum)) {
+      return minimum === maximum ? money(minimum) : `${money(minimum)}–${money(maximum)}`;
+    }
+    if (Number.isFinite(minimum)) return `${money(minimum)} 起`;
+    if (Number.isFinite(maximum)) return `${money(maximum)} 以内`;
+    return "—";
+  }
+
+  function switchCatalogView(type, updateHash = true) {
+    state.activeCatalog = type === "frame" ? "frame" : "lens";
+    $("#lensSection").hidden = state.activeCatalog !== "lens";
+    $("#frameSection").hidden = state.activeCatalog !== "frame";
+    document.querySelectorAll("[data-catalog-view]").forEach((button) => {
+      const selected = button.dataset.catalogView === state.activeCatalog;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    document.title = state.activeCatalog === "frame" ? "雷镜镜框成本价库" : "雷镜镜片成本价库";
+    if (updateHash) history.replaceState(null, "", state.activeCatalog === "frame" ? "#frames" : "#lenses");
+  }
+
+  function refreshFrameOptions() {
+    const brandOptions = $("#frameBrandOptions");
+    const seriesNav = $(".frame-series-nav");
+    const resultPanel = $(".frame-result-panel");
+    const readyState = $("#frameReadyState");
+    if (!state.frames.length) {
+      brandOptions.innerHTML = '<span class="pending-chip">品牌与系列数据待录入</span>';
+      seriesNav.hidden = true;
+      resultPanel.hidden = true;
+      readyState.hidden = false;
+      $("#frameResultSummary").textContent = "暂无镜框数据";
+      return;
+    }
+
+    seriesNav.hidden = false;
+    resultPanel.hidden = false;
+    readyState.hidden = true;
+    const brands = facetValues(state.frames, "brand");
+    brandOptions.innerHTML = buttonHtml("", state.frames.length, !state.frameFilters.brand, "全部品牌", "系列") +
+      brands.map((item) => buttonHtml(item.value, item.count, state.frameFilters.brand === item.value, "", "系列")).join("");
+    brandOptions.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.frameFilters = { brand: button.dataset.value, series: "" };
+        state.framePage = 1;
+        refreshFrameOptions();
+        applyFrameFilters();
+      });
+    });
+
+    const scoped = state.frameFilters.brand
+      ? state.frames.filter((row) => row.brand === state.frameFilters.brand)
+      : state.frames;
+    const series = facetValues(scoped, "series");
+    $("#frameSeriesTitle").textContent = state.frameFilters.brand ? `${state.frameFilters.brand}系列` : "全部镜框系列";
+    $("#frameSeriesOptions").innerHTML = buttonHtml("", scoped.length, !state.frameFilters.series, "全部", "系列") +
+      series.map((item) => buttonHtml(item.value, item.count, state.frameFilters.series === item.value, "", "款")).join("");
+    $("#frameSeriesOptions").querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.frameFilters.series = button.dataset.value;
+        state.framePage = 1;
+        refreshFrameOptions();
+        applyFrameFilters();
+      });
+    });
+  }
+
+  function applyFrameFilters() {
+    if (!state.frames.length) {
+      state.frameFiltered = [];
+      $("#frameResultRows").innerHTML = "";
+      $("#framePagination").innerHTML = "";
+      return;
+    }
+    const query = normalize(state.frameQuery);
+    state.frameFiltered = state.frames.filter((row) =>
+      (!state.frameFilters.brand || row.brand === state.frameFilters.brand) &&
+      (!state.frameFilters.series || row.series === state.frameFilters.series) &&
+      (!query || normalize(row.search_text).includes(query))
+    );
+    if (state.frameSort) {
+      state.frameFiltered.sort((a, b) => {
+        const aValue = frameCostValue(a);
+        const bValue = frameCostValue(b);
+        if (aValue === null && bValue === null) return 0;
+        if (aValue === null) return 1;
+        if (bValue === null) return -1;
+        return state.frameSort === "desc" ? bValue - aValue : aValue - bValue;
+      });
+    }
+    const sortLabel = state.frameSort ? ` · ${$("#framePriceSort").selectedOptions[0].textContent}` : "";
+    $("#frameResultSummary").textContent = `共 ${state.frameFiltered.length.toLocaleString("zh-CN")} 个系列${sortLabel}`;
+    renderFrameRows();
+  }
+
+  function renderFrameRows() {
+    const pageCount = Math.max(1, Math.ceil(state.frameFiltered.length / PAGE_SIZE));
+    state.framePage = Math.min(state.framePage, pageCount);
+    const start = (state.framePage - 1) * PAGE_SIZE;
+    const pageRows = state.frameFiltered.slice(start, start + PAGE_SIZE);
+    $("#frameResultRows").innerHTML = pageRows.map((row) => `<tr>
+      <td class="brand-cell" data-label="品牌"><b>${escapeHtml(row.brand)}</b></td>
+      <td class="product-cell" data-label="系列"><strong>${escapeHtml(row.series || row.display_name || "未命名系列")}</strong><small>${escapeHtml(row.model || row.sku || "")}</small></td>
+      <td data-label="定位 / 描述">${escapeHtml(row.positioning || row.description || row.category || "—")}</td>
+      <td data-label="材质">${escapeHtml(row.material || "—")}</td>
+      <td class="money cost-cell frame-cost-cell" data-label="参考成本价">${frameCost(row)}${clean(row.cost_note) ? `<small>${escapeHtml(row.cost_note)}</small>` : ""}</td>
+      <td data-label="备注">${escapeHtml(row.remark || row.notes || "—")}</td>
+      <td data-label="更新时间">${escapeHtml(row.updated_at || "—")}</td>
+    </tr>`).join("");
+    $("#frameEmptyState").hidden = pageRows.length > 0;
+    renderFramePagination(pageCount);
+  }
+
+  function renderFramePagination(pageCount) {
+    const nav = $("#framePagination");
+    if (pageCount <= 1) { nav.innerHTML = ""; return; }
+    const pages = new Set([1, pageCount, state.framePage - 1, state.framePage, state.framePage + 1]
+      .filter((page) => page >= 1 && page <= pageCount));
+    const sorted = [...pages].sort((a, b) => a - b);
+    let previous = 0;
+    const middle = sorted.map((page) => {
+      const gap = page - previous > 1 ? `<span>…</span>` : "";
+      previous = page;
+      return `${gap}<button type="button" data-page="${page}" class="${page === state.framePage ? "selected" : ""}">${page}</button>`;
+    }).join("");
+    nav.innerHTML = `<button type="button" data-page="${state.framePage - 1}" ${state.framePage === 1 ? "disabled" : ""}>‹</button>${middle}
+      <button type="button" data-page="${state.framePage + 1}" ${state.framePage === pageCount ? "disabled" : ""}>›</button>`;
+    nav.querySelectorAll("button:not(:disabled)").forEach((button) => button.addEventListener("click", () => {
+      state.framePage = Number(button.dataset.page);
+      renderFrameRows();
+      $(".frame-result-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+  }
+
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const phone = $("#phoneInput").value.replace(/\D/g, "");
@@ -276,8 +441,8 @@
     loginButton.textContent = "正在验证…";
     loginError.textContent = "";
     try {
-      const rows = await signIn(phone, password);
-      showCatalog(phone, rows);
+      const catalog = await signIn(phone, password);
+      showCatalog(phone, catalog);
     } catch (error) {
       console.error(error);
       loginError.textContent = error.message === "PRICE_ARCHIVE_UNAVAILABLE"
@@ -290,6 +455,9 @@
   });
 
   $("#logoutButton").addEventListener("click", () => { sessionStorage.removeItem(SESSION_KEY); showLogin(); });
+  document.querySelectorAll("[data-catalog-view]").forEach((button) => button.addEventListener("click", () => {
+    switchCatalogView(button.dataset.catalogView);
+  }));
   document.querySelectorAll("[data-mode]").forEach((button) => button.addEventListener("click", () => {
     state.mode = button.dataset.mode;
     document.querySelectorAll("[data-mode]").forEach((item) => item.classList.toggle("selected", item === button));
@@ -317,6 +485,28 @@
     state.page = 1;
     applyFilters();
   });
+  const submitFrameSearch = () => {
+    state.frameQuery = $("#frameSearchInput").value.trim();
+    state.framePage = 1;
+    applyFrameFilters();
+  };
+  $("#frameSearchButton").addEventListener("click", submitFrameSearch);
+  $("#frameSearchInput").addEventListener("keydown", (event) => { if (event.key === "Enter") submitFrameSearch(); });
+  $("#resetFrameFilters").addEventListener("click", () => {
+    state.frameFilters = { brand: "", series: "" };
+    state.frameQuery = "";
+    state.frameSort = "";
+    state.framePage = 1;
+    $("#frameSearchInput").value = "";
+    $("#framePriceSort").value = "";
+    refreshFrameOptions();
+    applyFrameFilters();
+  });
+  $("#framePriceSort").addEventListener("change", (event) => {
+    state.frameSort = event.target.value;
+    state.framePage = 1;
+    applyFrameFilters();
+  });
   SELECTS.forEach(([id, key]) => $(`#${id}`).addEventListener("change", (event) => {
     const filterKey = key === "refractive_index" ? "refractiveIndex" : key === "supply_type" ? "supplyType" : key;
     state.filters[filterKey] = event.target.value;
@@ -330,7 +520,7 @@
       const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null");
       if (!saved?.phone || !saved?.masterKey) { showLogin(); return; }
       const catalog = await openCatalog(fromB64(saved.masterKey));
-      showCatalog(saved.phone, catalog.products);
+      showCatalog(saved.phone, catalog);
     } catch (error) {
       console.error(error);
       sessionStorage.removeItem(SESSION_KEY);

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#3b2419">
-  <title>雷镜镜片价库</title>
-  <meta name="description" content="雷镜内部镜片批发价与成本价查询">
+  <title>雷镜镜片·镜框价库</title>
+  <meta name="description" content="雷镜内部镜片与镜框成本价查询">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -13,12 +13,12 @@
     <section class="login-intro">
       <div class="login-brand">
         <span class="logo-mark">◉</span>
-        <span><strong>雷镜镜片价库</strong><small>LEI LENS ARCHIVE</small></span>
+        <span><strong>雷镜镜片·镜框价库</strong><small>LEI PRICE ARCHIVE</small></span>
       </div>
       <div class="login-copy">
         <p class="eyebrow">INTERNAL PRICE ARCHIVE</p>
-        <h1>镜片价格，<br>清晰掌握。</h1>
-        <p>汇集品牌、系列、折射率、膜层和供应方式，帮助团队快速找到准确的批发价与成本价。</p>
+        <h1>镜片与镜框，<br>成本清晰掌握。</h1>
+        <p>统一查询镜片与镜框的品牌、系列和内部成本信息，帮助团队快速找到准确价格。</p>
       </div>
       <span class="security-note">仅限已授权员工访问</span>
     </section>
@@ -47,7 +47,7 @@
     <header class="topbar">
       <div class="topbar-brand">
         <span class="logo-mark">◉</span>
-        <span><strong>雷镜镜片价库</strong><small>内部批发价与成本档案</small></span>
+        <span><strong>雷镜镜片·镜框价库</strong><small>内部批发价与成本档案</small></span>
       </div>
       <div class="topbar-actions">
         <span id="currentUser" class="user-chip"></span>
@@ -57,9 +57,24 @@
 
     <div class="catalog-shell">
       <section class="catalog-hero">
-        <div><strong>雷镜镜片价格档案</strong><span id="catalogSummary">正在读取受保护的价格数据…</span></div>
+        <div><strong>雷镜内部成本价格档案</strong><span id="catalogSummary">正在读取受保护的价格数据…</span></div>
         <b>持续更新</b>
       </section>
+
+      <nav class="catalog-tabs" aria-label="价库一级分类">
+        <button type="button" class="selected" data-catalog-view="lens" aria-pressed="true">
+          <span class="catalog-tab-icon" aria-hidden="true">◉</span>
+          <span><strong>镜片成本价</strong><small>品牌、系列、折射率与膜层</small></span>
+          <i>进入查询</i>
+        </button>
+        <button type="button" data-catalog-view="frame" aria-pressed="false">
+          <span class="catalog-tab-icon" aria-hidden="true">▢</span>
+          <span><strong>镜框成本价</strong><small>品牌、系列与参考成本</small></span>
+          <i>进入查询</i>
+        </button>
+      </nav>
+
+      <section id="lensSection" class="catalog-section">
 
       <section class="search-panel">
         <div class="search-mode" aria-label="搜索方式">
@@ -132,6 +147,74 @@
         </div>
         <div id="emptyState" class="empty-state" hidden>没有符合条件的产品，请减少筛选条件或切换到模糊搜索。</div>
         <nav id="pagination" class="pagination" aria-label="结果分页"></nav>
+      </section>
+      </section>
+
+      <section id="frameSection" class="catalog-section" hidden>
+        <section class="search-panel frame-search-panel">
+          <label class="search-box">
+            <span>⌕</span>
+            <input id="frameSearchInput" placeholder="可输入镜框品牌、系列、材质或备注">
+            <button id="frameSearchButton" type="button">搜索</button>
+          </label>
+          <button id="resetFrameFilters" class="filter-toggle frame-reset" type="button">清除筛选</button>
+        </section>
+        <p class="search-guidance">镜框按品牌和系列快速查找；成本可记录单价，也可以记录一个参考区间。</p>
+
+        <section class="brand-nav" aria-label="镜框品牌一级目录">
+          <div class="brand-nav-head">
+            <span>一级目录</span>
+            <div><strong>镜框品牌</strong><small>先选择品牌，再查看该品牌的系列与参考成本</small></div>
+          </div>
+          <div id="frameBrandOptions" class="brand-options"></div>
+        </section>
+
+        <section class="group-nav frame-series-nav">
+          <strong id="frameSeriesTitle">全部镜框系列</strong>
+          <div id="frameSeriesOptions" class="group-options"></div>
+        </section>
+
+        <section id="frameReadyState" class="frame-ready-state" hidden>
+          <div class="frame-ready-copy">
+            <span>镜框栏目已就绪</span>
+            <strong>数据按“品牌 → 系列 → 参考成本”录入</strong>
+            <p>您后续给我品牌、系列和大致成本价即可；若有材质、定位或备注，也可以一并展示。</p>
+          </div>
+          <div class="frame-structure" aria-label="镜框价库信息结构">
+            <div><small>一级分类</small><b>镜框品牌</b></div>
+            <i>→</i>
+            <div><small>二级分类</small><b>具体系列</b></div>
+            <i>→</i>
+            <div><small>核心信息</small><b>参考成本价</b></div>
+          </div>
+        </section>
+
+        <section class="result-panel frame-result-panel">
+          <div class="result-head">
+            <div><strong>镜框查询结果</strong><span id="frameResultSummary"></span></div>
+            <label class="price-sort">
+              <span>成本排序</span>
+              <select id="framePriceSort">
+                <option value="">默认排序</option>
+                <option value="asc">成本价：最低 → 最高</option>
+                <option value="desc">成本价：最高 → 最低</option>
+              </select>
+            </label>
+          </div>
+          <div class="table-wrap">
+            <table class="frame-table">
+              <thead>
+                <tr>
+                  <th>品牌</th><th>系列</th><th>定位 / 描述</th><th>材质</th>
+                  <th class="cost-head">参考成本价</th><th>备注</th><th>更新时间</th>
+                </tr>
+              </thead>
+              <tbody id="frameResultRows"></tbody>
+            </table>
+          </div>
+          <div id="frameEmptyState" class="empty-state" hidden>没有符合条件的镜框系列，请减少筛选条件或清除搜索。</div>
+          <nav id="framePagination" class="pagination" aria-label="镜框结果分页"></nav>
+        </section>
       </section>
     </div>
   </main>
