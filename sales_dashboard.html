@@ -597,7 +597,6 @@
       };
 
       const people = [
-        { id: "B", account: "小红书B", name: "袁鹏" },
         { id: "E", account: "小红书E", name: "黄惠丹" },
         { id: "C", account: "小红书J", name: "凌洁莹" },
         { id: "D", account: "小红书D", name: "刘宇哲" },
@@ -615,7 +614,8 @@
       const archivedPeople = [
         { id: "L", account: "小红书L", name: "王怡然", archived: true },
         { id: "F", account: "小红书F", name: "曾景昇", archived: true },
-        { id: "O", account: "小红书F", name: "江志烨", joinedMonth: "2026-08", leftMonth: "2026-10", archived: true }
+        { id: "O", account: "小红书F", name: "江志烨", joinedMonth: "2026-08", leftMonth: "2026-10", archived: true },
+        { id: "B", account: "小红书B", name: "袁鹏", leftMonth: "2026-10", archived: true }
       ];
       const allPeople = [...people, ...archivedPeople];
 
@@ -2696,7 +2696,7 @@
         const logs = normalizeActivityLog(state.activityLog);
         const body = `
           <div class="activity-bar">
-            <div class="field"><label for="operatorName">本机操作人</label><input id="operatorName" maxlength="24" value="${escapeHTML(operatorName)}" placeholder="例如：袁鹏 / 前台电脑"></div>
+            <div class="field"><label for="operatorName">本机操作人</label><input id="operatorName" maxlength="24" value="${escapeHTML(operatorName)}" placeholder="例如：前台电脑"></div>
             <button type="button" class="btn primary" id="saveOperatorBtn">保存署名</button>
           </div>
           <p class="hint" style="margin-top:0;margin-bottom:14px;">操作人只用于团队协作留痕，不需要登录，也不会限制任何成员录入。记录会随云端同步；旧数据不会凭空补出历史操作人。</p>
