@@ -1339,7 +1339,10 @@
         return allPeople.filter((person) => {
           if (person.joinedMonth && person.joinedMonth > month) return false;
           if (person.leftMonth && person.leftMonth <= month) return false;
-          if (person.archived) return (state.entries[person.id] || []).some((entry) => entry.date.startsWith(month));
+          if (person.archived) {
+            if (person.joinedMonth || person.leftMonth) return true;
+            return (state.entries[person.id] || []).some((entry) => entry.date.startsWith(month));
+          }
           return true;
         });
       }
@@ -1370,7 +1373,7 @@
         const input = $("#monthPicker");
         if (!input) return;
         const months = availableMonths();
-        input.min = months[0] || "2026-05";
+        input.min = months[0] && months[0] < "2026-05" ? months[0] : "2026-05";
         input.max = monthKey(dateKey());
         input.value = activeMonth();
       }
